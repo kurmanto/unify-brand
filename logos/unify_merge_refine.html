@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Unify — Merge Refinement</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #060606;
+      color: #fafafa;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 64px 40px 48px;
+    }
+    .hero-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: #444;
+      margin-bottom: 12px;
+    }
+    .hero-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 36px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      color: #fff;
+    }
+
+    .compare-section {
+      max-width: 1100px;
+      margin: 0 auto 48px;
+      padding: 0 32px;
+    }
+    .compare-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #333;
+      margin-bottom: 16px;
+      padding: 0 8px;
+    }
+
+    .compare-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      border-radius: 20px;
+      overflow: hidden;
+      margin-bottom: 2px;
+    }
+
+    .card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 24px 40px;
+      gap: 20px;
+      position: relative;
+    }
+    .card-dark { background: #111; }
+    .card-light { background: #f4f9f5; }
+    .card-light-sunset { background: #fdf7f4; }
+
+    .card-tag {
+      position: absolute;
+      top: 16px;
+      left: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: #444;
+    }
+    .card-desc {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      font-size: 10px;
+      color: #555;
+      text-align: right;
+    }
+
+    .mark {
+      width: 88px;
+      height: 88px;
+      border-radius: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .mark svg { width: 50px; height: 50px; }
+
+    .mark-sm {
+      width: 44px;
+      height: 44px;
+      border-radius: 11px;
+    }
+    .mark-sm svg { width: 24px; height: 24px; }
+
+    .mark-xs {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+    }
+    .mark-xs svg { width: 17px; height: 17px; }
+
+    .g1 { background: linear-gradient(145deg, #1b3d2c, #2a6b45, #348a58); }
+    .g2 { background: linear-gradient(145deg, #6d1f3e, #b83a48, #e07a4b); }
+
+    .wm {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      letter-spacing: -0.6px;
+    }
+    .wm-white { color: #fff; }
+    .wm-dark { color: #111; }
+
+    .lockup {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .lockup .mark {
+      width: 44px;
+      height: 44px;
+      border-radius: 11px;
+    }
+    .lockup .mark svg { width: 24px; height: 24px; }
+
+    .tag {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(0,0,0,0.3);
+    }
+
+    /* Size scale row */
+    .sizes-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      padding: 40px;
+      background: #111;
+      border-radius: 20px;
+      margin-top: 2px;
+    }
+    .size-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .size-label {
+      font-size: 10px;
+      color: #555;
+      font-weight: 500;
+      letter-spacing: 1px;
+    }
+
+    /* Signature */
+    .sig-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+    .sig-cell {
+      padding: 36px 32px;
+    }
+    .sig-cell-green { background: #f4f9f5; }
+    .sig-cell-sunset { background: #fdf7f4; }
+    .sig-inner {
+      display: flex;
+      gap: 18px;
+    }
+    .sig-mark {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .sig-mark svg { width: 26px; height: 26px; }
+    .sig-info { font-size: 13px; color: #1a1a1a; line-height: 1.5; }
+    .sig-name { font-weight: 600; font-size: 16px; letter-spacing: -0.2px; }
+    .sig-role { font-size: 12px; color: #888; }
+    .sig-bar { width: 24px; height: 2px; border-radius: 1px; margin: 8px 0; }
+    .sig-bar-green { background: linear-gradient(90deg, #1b3d2c, #4a9a6a); }
+    .sig-bar-sunset { background: linear-gradient(90deg, #6d1f3e, #e07a4b); }
+    .sig-contact { font-size: 12px; color: #666; line-height: 1.8; }
+    .sig-contact a { text-decoration: none; }
+    .sig-brand-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .sig-brand-mini {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sig-brand-mini svg { width: 15px; height: 15px; }
+    .sig-bname {
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: #1a1a1a;
+    }
+    .sig-bsub {
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(0,0,0,0.3);
+      margin-left: 6px;
+    }
+
+    .pick {
+      border: 2px solid rgba(74, 154, 106, 0.4);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="hero">
+    <div class="hero-label">Merge — Refinement</div>
+    <div class="hero-title">Stem Length Comparison</div>
+  </div>
+
+  <!-- ============ STEM COMPARISON: GREEN ============ -->
+  <div class="compare-section">
+    <div class="compare-label">Deep Green — Three Stem Lengths</div>
+    <div class="compare-row">
+
+      <!-- A: Original -->
+      <div class="card card-dark">
+        <span class="card-tag">A</span>
+        <span class="card-desc">Original</span>
+        <div class="mark g1">
+          <svg viewBox="0 0 44 44" fill="none">
+            <circle cx="11" cy="8" r="3" fill="rgba(255,255,255,0.4)"/>
+            <line x1="11" y1="11" x2="11" y2="22" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M11 22 Q11 30 22 33" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <circle cx="33" cy="8" r="3" fill="white"/>
+            <line x1="33" y1="11" x2="33" y2="22" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M33 22 Q33 30 22 33" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <circle cx="22" cy="36" r="3.5" fill="white"/>
+          </svg>
+        </div>
+        <span class="wm wm-white" style="font-size: 24px;">unify</span>
+      </div>
+
+      <!-- B: Shorter stems -->
+      <div class="card card-dark">
+        <span class="card-tag">B</span>
+        <span class="card-desc">Shorter stems</span>
+        <div class="mark g1">
+          <svg viewBox="0 0 44 44" fill="none">
+            <circle cx="11" cy="10" r="3" fill="rgba(255,255,255,0.4)"/>
+            <line x1="11" y1="13" x2="11" y2="19" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M11 19 Q11 28 22 32" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <circle cx="33" cy="10" r="3" fill="white"/>
+            <line x1="33" y1="13" x2="33" y2="19" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M33 19 Q33 28 22 32" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <circle cx="22" cy="36" r="3.5" fill="white"/>
+          </svg>
+        </div>
+        <span class="wm wm-white" style="font-size: 24px;">unify</span>
+      </div>
+
+      <!-- C: Minimal stems -->
+      <div class="card card-dark">
+        <span class="card-tag">C</span>
+        <span class="card-desc">Minimal stems</span>
+        <div class="mark g1">
+          <svg viewBox="0 0 44 44" fill="none">
+            <circle cx="11" cy="11" r="3" fill="rgba(255,255,255,0.4)"/>
+            <line x1="11" y1="14" x2="11" y2="17" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M11 17 Q11 27 22 31" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <circle cx="33" cy="11" r="3" fill="white"/>
+            <line x1="33" y1="14" x2="33" y2="17" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M33 17 Q33 27 22 31" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <circle cx="22" cy="35" r="3.5" fill="white"/>
+          </svg>
+        </div>
+        <span class="wm wm-white" style="font-size: 24px;">unify</span>
+      </div>
+    </div>
+
+    <!-- Same row on light -->
+    <div class="compare-row" style="margin-top: 2px;">
+      <div class="card card-light">
+        <span class="card-tag">A</span>
+        <div class="lockup">
+          <div class="mark g1" style="width:44px;height:44px;border-radius:11px;">
+            <svg viewBox="0 0 44 44" fill="none" style="width:24px;height:24px;">
+              <circle cx="11" cy="8" r="3" fill="rgba(255,255,255,0.4)"/>
+              <line x1="11" y1="11" x2="11" y2="22" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M11 22 Q11 30 22 33" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+              <circle cx="33" cy="8" r="3" fill="white"/>
+              <line x1="33" y1="11" x2="33" y2="22" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M33 22 Q33 30 22 33" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+              <circle cx="22" cy="36" r="3.5" fill="white"/>
+            </svg>
+          </div>
+          <div>
+            <div class="wm wm-dark" style="font-size:20px;">unify</div>
+            <div class="tag">Software Engineering</div>
+          </div>
+        </div>
+      </div>
+      <div class="card card-light">
+        <span class="card-tag">B</span>
+        <div class="lockup">
+          <div class="mark g1" style="width:44px;height:44px;border-radius:11px;">
+            <svg viewBox="0 0 44 44" fill="none" style="width:24px;height:24px;">
+              <circle cx="11" cy="10" r="3" fill="rgba(255,255,255,0.4)"/>
+              <line x1="11" y1="13" x2="11" y2="19" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M11 19 Q11 28 22 32" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+              <circle cx="33" cy="10" r="3" fill="white"/>
+              <line x1="33" y1="13" x2="33" y2="19" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M33 19 Q33 28 22 32" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+              <circle cx="22" cy="36" r="3.5" fill="white"/>
+            </svg>
+          </div>
+          <div>
+            <div class="wm wm-dark" style="font-size:20px;">unify</div>
+            <div class="tag">Software Engineering</div>
+          </div>
+        </div>
+      </div>
+      <div class="card card-light">
+        <span class="card-tag">C</span>
+        <div class="lockup">
+          <div class="mark g1" style="width:44px;height:44px;border-radius:11px;">
+            <svg viewBox="0 0 44 44" fill="none" style="width:24px;height:24px;">
+              <circle cx="11" cy="11" r="3" fill="rgba(255,255,255,0.4)"/>
+              <line x1="11" y1="14" x2="11" y2="17" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M11 17 Q11 27 22 31" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+              <circle cx="33" cy="11" r="3" fill="white"/>
+              <line x1="33" y1="14" x2="33" y2="17" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M33 17 Q33 27 22 31" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+              <circle cx="22" cy="35" r="3.5" fill="white"/>
+            </svg>
+          </div>
+          <div>
+            <div class="wm wm-dark" style="font-size:20px;">unify</div>
+            <div class="tag">Software Engineering</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SAME FOR SUNSET ============ -->
+  <div class="compare-section">
+    <div class="compare-label">Warm Sunset — Same Three Lengths</div>
+    <div class="compare-row">
+      <div class="card card-dark">
+        <span class="card-tag">A</span>
+        <span class="card-desc">Original</span>
+        <div class="mark g2">
+          <svg viewBox="0 0 44 44" fill="none">
+            <circle cx="11" cy="8" r="3" fill="rgba(255,255,255,0.4)"/>
+            <line x1="11" y1="11" x2="11" y2="22" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M11 22 Q11 30 22 33" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <circle cx="33" cy="8" r="3" fill="white"/>
+            <line x1="33" y1="11" x2="33" y2="22" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M33 22 Q33 30 22 33" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <circle cx="22" cy="36" r="3.5" fill="white"/>
+          </svg>
+        </div>
+        <span class="wm wm-white" style="font-size: 24px;">unify</span>
+      </div>
+      <div class="card card-dark">
+        <span class="card-tag">B</span>
+        <span class="card-desc">Shorter stems</span>
+        <div class="mark g2">
+          <svg viewBox="0 0 44 44" fill="none">
+            <circle cx="11" cy="10" r="3" fill="rgba(255,255,255,0.4)"/>
+            <line x1="11" y1="13" x2="11" y2="19" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M11 19 Q11 28 22 32" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <circle cx="33" cy="10" r="3" fill="white"/>
+            <line x1="33" y1="13" x2="33" y2="19" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M33 19 Q33 28 22 32" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <circle cx="22" cy="36" r="3.5" fill="white"/>
+          </svg>
+        </div>
+        <span class="wm wm-white" style="font-size: 24px;">unify</span>
+      </div>
+      <div class="card card-dark">
+        <span class="card-tag">C</span>
+        <span class="card-desc">Minimal stems</span>
+        <div class="mark g2">
+          <svg viewBox="0 0 44 44" fill="none">
+            <circle cx="11" cy="11" r="3" fill="rgba(255,255,255,0.4)"/>
+            <line x1="11" y1="14" x2="11" y2="17" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M11 17 Q11 27 22 31" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <circle cx="33" cy="11" r="3" fill="white"/>
+            <line x1="33" y1="14" x2="33" y2="17" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M33 17 Q33 27 22 31" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <circle cx="22" cy="35" r="3.5" fill="white"/>
+          </svg>
+        </div>
+        <span class="wm wm-white" style="font-size: 24px;">unify</span>
+      </div>
+    </div>
+
+    <div class="compare-row" style="margin-top: 2px;">
+      <div class="card card-light-sunset">
+        <span class="card-tag">A</span>
+        <div class="lockup">
+          <div class="mark g2" style="width:44px;height:44px;border-radius:11px;">
+            <svg viewBox="0 0 44 44" fill="none" style="width:24px;height:24px;">
+              <circle cx="11" cy="8" r="3" fill="rgba(255,255,255,0.4)"/>
+              <line x1="11" y1="11" x2="11" y2="22" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M11 22 Q11 30 22 33" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+              <circle cx="33" cy="8" r="3" fill="white"/>
+              <line x1="33" y1="11" x2="33" y2="22" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M33 22 Q33 30 22 33" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+              <circle cx="22" cy="36" r="3.5" fill="white"/>
+            </svg>
+          </div>
+          <div>
+            <div class="wm wm-dark" style="font-size:20px;">unify</div>
+            <div class="tag">Software Engineering</div>
+          </div>
+        </div>
+      </div>
+      <div class="card card-light-sunset">
+        <span class="card-tag">B</span>
+        <div class="lockup">
+          <div class="mark g2" style="width:44px;height:44px;border-radius:11px;">
+            <svg viewBox="0 0 44 44" fill="none" style="width:24px;height:24px;">
+              <circle cx="11" cy="10" r="3" fill="rgba(255,255,255,0.4)"/>
+              <line x1="11" y1="13" x2="11" y2="19" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M11 19 Q11 28 22 32" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+              <circle cx="33" cy="10" r="3" fill="white"/>
+              <line x1="33" y1="13" x2="33" y2="19" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M33 19 Q33 28 22 32" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+              <circle cx="22" cy="36" r="3.5" fill="white"/>
+            </svg>
+          </div>
+          <div>
+            <div class="wm wm-dark" style="font-size:20px;">unify</div>
+            <div class="tag">Software Engineering</div>
+          </div>
+        </div>
+      </div>
+      <div class="card card-light-sunset">
+        <span class="card-tag">C</span>
+        <div class="lockup">
+          <div class="mark g2" style="width:44px;height:44px;border-radius:11px;">
+            <svg viewBox="0 0 44 44" fill="none" style="width:24px;height:24px;">
+              <circle cx="11" cy="11" r="3" fill="rgba(255,255,255,0.4)"/>
+              <line x1="11" y1="14" x2="11" y2="17" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M11 17 Q11 27 22 31" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+              <circle cx="33" cy="11" r="3" fill="white"/>
+              <line x1="33" y1="14" x2="33" y2="17" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M33 17 Q33 27 22 31" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+              <circle cx="22" cy="35" r="3.5" fill="white"/>
+            </svg>
+          </div>
+          <div>
+            <div class="wm wm-dark" style="font-size:20px;">unify</div>
+            <div class="tag">Software Engineering</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SIZE SCALE ============ -->
+  <div class="compare-section">
+    <div class="compare-label">Size Scale — Option B at Every Size</div>
+    <div class="sizes-row">
+      <div class="size-item">
+        <div class="mark g1" style="width:96px;height:96px;border-radius:24px;">
+          <svg viewBox="0 0 44 44" fill="none" style="width:52px;height:52px;">
+            <circle cx="11" cy="10" r="3" fill="rgba(255,255,255,0.4)"/>
+            <line x1="11" y1="13" x2="11" y2="19" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M11 19 Q11 28 22 32" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <circle cx="33" cy="10" r="3" fill="white"/>
+            <line x1="33" y1="13" x2="33" y2="19" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M33 19 Q33 28 22 32" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <circle cx="22" cy="36" r="3.5" fill="white"/>
+          </svg>
+        </div>
+        <span class="size-label">96px</span>
+      </div>
+      <div class="size-item">
+        <div class="mark g1" style="width:64px;height:64px;border-radius:16px;">
+          <svg viewBox="0 0 44 44" fill="none" style="width:36px;height:36px;">
+            <circle cx="11" cy="10" r="3" fill="rgba(255,255,255,0.4)"/>
+            <line x1="11" y1="13" x2="11" y2="19" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M11 19 Q11 28 22 32" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <circle cx="33" cy="10" r="3" fill="white"/>
+            <line x1="33" y1="13" x2="33" y2="19" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M33 19 Q33 28 22 32" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <circle cx="22" cy="36" r="3.5" fill="white"/>
+          </svg>
+        </div>
+        <span class="size-label">64px</span>
+      </div>
+      <div class="size-item">
+        <div class="mark g1" style="width:44px;height:44px;border-radius:11px;">
+          <svg viewBox="0 0 44 44" fill="none" style="width:24px;height:24px;">
+            <circle cx="11" cy="10" r="3" fill="rgba(255,255,255,0.4)"/>
+            <line x1="11" y1="13" x2="11" y2="19" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M11 19 Q11 28 22 32" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <circle cx="33" cy="10" r="3" fill="white"/>
+            <line x1="33" y1="13" x2="33" y2="19" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M33 19 Q33 28 22 32" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <circle cx="22" cy="36" r="3.5" fill="white"/>
+          </svg>
+        </div>
+        <span class="size-label">44px</span>
+      </div>
+      <div class="size-item">
+        <div class="mark g1" style="width:32px;height:32px;border-radius:8px;">
+          <svg viewBox="0 0 44 44" fill="none" style="width:17px;height:17px;">
+            <circle cx="11" cy="10" r="3.5" fill="rgba(255,255,255,0.4)"/>
+            <line x1="11" y1="13.5" x2="11" y2="19" stroke="rgba(255,255,255,0.4)" stroke-width="3" stroke-linecap="round"/>
+            <path d="M11 19 Q11 28 22 32" stroke="rgba(255,255,255,0.4)" stroke-width="3" stroke-linecap="round" fill="none"/>
+            <circle cx="33" cy="10" r="3.5" fill="white"/>
+            <line x1="33" y1="13.5" x2="33" y2="19" stroke="white" stroke-width="3" stroke-linecap="round"/>
+            <path d="M33 19 Q33 28 22 32" stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/>
+            <circle cx="22" cy="36" r="4" fill="white"/>
+          </svg>
+        </div>
+        <span class="size-label">32px</span>
+      </div>
+      <div class="size-item">
+        <div class="mark g1" style="width:24px;height:24px;border-radius:6px;">
+          <svg viewBox="0 0 44 44" fill="none" style="width:14px;height:14px;">
+            <circle cx="11" cy="10" r="4" fill="rgba(255,255,255,0.4)"/>
+            <line x1="11" y1="14" x2="11" y2="19" stroke="rgba(255,255,255,0.4)" stroke-width="3.5" stroke-linecap="round"/>
+            <path d="M11 19 Q11 28 22 32" stroke="rgba(255,255,255,0.4)" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+            <circle cx="33" cy="10" r="4" fill="white"/>
+            <line x1="33" y1="14" x2="33" y2="19" stroke="white" stroke-width="3.5" stroke-linecap="round"/>
+            <path d="M33 19 Q33 28 22 32" stroke="white" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+            <circle cx="22" cy="36" r="4.5" fill="white"/>
+          </svg>
+        </div>
+        <span class="size-label">24px</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ FINAL SIGNATURES ============ -->
+  <div class="compare-section">
+    <div class="compare-label">Email Signatures — Option B</div>
+    <div class="sig-grid">
+      <div class="sig-cell sig-cell-green">
+        <div class="sig-inner">
+          <div class="sig-mark g1">
+            <svg viewBox="0 0 44 44" fill="none">
+              <circle cx="11" cy="10" r="3.5" fill="rgba(255,255,255,0.4)"/>
+              <line x1="11" y1="13.5" x2="11" y2="19" stroke="rgba(255,255,255,0.4)" stroke-width="3" stroke-linecap="round"/>
+              <path d="M11 19 Q11 28 22 32" stroke="rgba(255,255,255,0.4)" stroke-width="3" stroke-linecap="round" fill="none"/>
+              <circle cx="33" cy="10" r="3.5" fill="white"/>
+              <line x1="33" y1="13.5" x2="33" y2="19" stroke="white" stroke-width="3" stroke-linecap="round"/>
+              <path d="M33 19 Q33 28 22 32" stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/>
+              <circle cx="22" cy="36" r="4" fill="white"/>
+            </svg>
+          </div>
+          <div class="sig-info">
+            <div class="sig-name">Tomer Kurman</div>
+            <div class="sig-role">Founder & Software Engineer</div>
+            <div class="sig-bar sig-bar-green"></div>
+            <div class="sig-contact">
+              +1 (XXX) XXX-XXXX<br>
+              <a href="#" style="color:#1a1a1a;">tomer@unify.dev</a><br>
+              <a href="#" style="color:#2a6b45; font-weight:500;">unify.dev</a>
+            </div>
+            <div class="sig-brand-row">
+              <div class="sig-brand-mini g1">
+                <svg viewBox="0 0 44 44" fill="none">
+                  <circle cx="11" cy="10" r="4" fill="rgba(255,255,255,0.4)"/>
+                  <line x1="11" y1="14" x2="11" y2="19" stroke="rgba(255,255,255,0.4)" stroke-width="3.5" stroke-linecap="round"/>
+                  <path d="M11 19 Q11 28 22 32" stroke="rgba(255,255,255,0.4)" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+                  <circle cx="33" cy="10" r="4" fill="white"/>
+                  <line x1="33" y1="14" x2="33" y2="19" stroke="white" stroke-width="3.5" stroke-linecap="round"/>
+                  <path d="M33 19 Q33 28 22 32" stroke="white" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+                  <circle cx="22" cy="36" r="4.5" fill="white"/>
+                </svg>
+              </div>
+              <span class="sig-bname">unify</span>
+              <span class="sig-bsub">Software Engineering</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="sig-cell sig-cell-sunset">
+        <div class="sig-inner">
+          <div class="sig-mark g2">
+            <svg viewBox="0 0 44 44" fill="none">
+              <circle cx="11" cy="10" r="3.5" fill="rgba(255,255,255,0.4)"/>
+              <line x1="11" y1="13.5" x2="11" y2="19" stroke="rgba(255,255,255,0.4)" stroke-width="3" stroke-linecap="round"/>
+              <path d="M11 19 Q11 28 22 32" stroke="rgba(255,255,255,0.4)" stroke-width="3" stroke-linecap="round" fill="none"/>
+              <circle cx="33" cy="10" r="3.5" fill="white"/>
+              <line x1="33" y1="13.5" x2="33" y2="19" stroke="white" stroke-width="3" stroke-linecap="round"/>
+              <path d="M33 19 Q33 28 22 32" stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/>
+              <circle cx="22" cy="36" r="4" fill="white"/>
+            </svg>
+          </div>
+          <div class="sig-info">
+            <div class="sig-name">Tomer Kurman</div>
+            <div class="sig-role">Founder & Software Engineer</div>
+            <div class="sig-bar sig-bar-sunset"></div>
+            <div class="sig-contact">
+              +1 (XXX) XXX-XXXX<br>
+              <a href="#" style="color:#1a1a1a;">tomer@unify.dev</a><br>
+              <a href="#" style="color:#b83a48; font-weight:500;">unify.dev</a>
+            </div>
+            <div class="sig-brand-row">
+              <div class="sig-brand-mini g2">
+                <svg viewBox="0 0 44 44" fill="none">
+                  <circle cx="11" cy="10" r="4" fill="rgba(255,255,255,0.4)"/>
+                  <line x1="11" y1="14" x2="11" y2="19" stroke="rgba(255,255,255,0.4)" stroke-width="3.5" stroke-linecap="round"/>
+                  <path d="M11 19 Q11 28 22 32" stroke="rgba(255,255,255,0.4)" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+                  <circle cx="33" cy="10" r="4" fill="white"/>
+                  <line x1="33" y1="14" x2="33" y2="19" stroke="white" stroke-width="3.5" stroke-linecap="round"/>
+                  <path d="M33 19 Q33 28 22 32" stroke="white" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+                  <circle cx="22" cy="36" r="4.5" fill="white"/>
+                </svg>
+              </div>
+              <span class="sig-bname">unify</span>
+              <span class="sig-bsub">Software Engineering</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

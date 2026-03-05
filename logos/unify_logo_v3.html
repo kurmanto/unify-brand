@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Unify — Logo v3</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #060606;
+      color: #fafafa;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 72px 40px 20px;
+    }
+    .hero-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: #444;
+      margin-bottom: 14px;
+    }
+    .hero-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 44px;
+      font-weight: 700;
+      letter-spacing: -1.5px;
+      color: #fff;
+    }
+    .hero-sub {
+      font-size: 14px;
+      color: #555;
+      margin-top: 10px;
+    }
+
+    .palette-row {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      padding: 40px 0 48px;
+    }
+    .palette-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 100px;
+    }
+    .palette-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+    }
+    .palette-chip-label {
+      font-size: 12px;
+      color: #777;
+      font-weight: 500;
+    }
+
+    /* Option card */
+    .option {
+      max-width: 1100px;
+      margin: 0 auto 48px;
+      padding: 0 32px;
+    }
+    .option-header {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      margin-bottom: 20px;
+      padding: 0 8px;
+    }
+    .option-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      color: #333;
+    }
+    .option-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: #ccc;
+      letter-spacing: -0.3px;
+    }
+    .option-desc {
+      font-size: 13px;
+      color: #555;
+      margin-left: auto;
+    }
+
+    .option-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 24px;
+      gap: 24px;
+      position: relative;
+    }
+    .cell-dark { background: #111; }
+    .cell-light-green { background: #f4f9f5; }
+    .cell-light-sunset { background: #fdf7f4; }
+    .cell-white { background: #ffffff; }
+
+    .cell-tag {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      opacity: 0.25;
+    }
+
+    /* Mark */
+    .mark {
+      width: 80px;
+      height: 80px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .mark svg { width: 44px; height: 44px; }
+
+    .g1 { background: linear-gradient(145deg, #1b3d2c, #2a6b45, #348a58); }
+    .g2 { background: linear-gradient(145deg, #6d1f3e, #b83a48, #e07a4b); }
+
+    /* Lockup */
+    .lockup {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .lockup .mark {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+    }
+    .lockup .mark svg { width: 22px; height: 22px; }
+
+    .wm {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      letter-spacing: -0.6px;
+    }
+    .wm-lg { font-size: 26px; }
+    .wm-sm { font-size: 20px; }
+    .wm-white { color: #fff; }
+    .wm-dark { color: #111; }
+
+    .tag {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .tag-muted-light { color: rgba(0,0,0,0.3); }
+    .tag-muted-dark { color: rgba(255,255,255,0.25); }
+
+    /* Signature section */
+    .sig-section {
+      max-width: 1100px;
+      margin: 24px auto 80px;
+      padding: 0 32px;
+    }
+    .sig-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #333;
+      margin-bottom: 20px;
+      padding: 0 8px;
+    }
+    .sig-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+    .sig-cell {
+      padding: 36px 32px;
+    }
+    .sig-cell-green { background: #f4f9f5; }
+    .sig-cell-sunset { background: #fdf7f4; }
+
+    .sig-inner {
+      display: flex;
+      gap: 18px;
+    }
+    .sig-mark {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .sig-mark svg { width: 26px; height: 26px; }
+    .sig-info { font-size: 13px; color: #1a1a1a; line-height: 1.5; }
+    .sig-name { font-weight: 600; font-size: 16px; letter-spacing: -0.2px; }
+    .sig-role { font-size: 12px; color: #888; }
+    .sig-bar { width: 24px; height: 2px; border-radius: 1px; margin: 8px 0; }
+    .sig-bar-green { background: linear-gradient(90deg, #1b3d2c, #4a9a6a); }
+    .sig-bar-sunset { background: linear-gradient(90deg, #6d1f3e, #e07a4b); }
+    .sig-contact { font-size: 12px; color: #666; line-height: 1.8; }
+    .sig-contact a { text-decoration: none; }
+    .sig-brand-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .sig-brand-mini {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sig-brand-mini svg { width: 15px; height: 15px; }
+    .sig-bname {
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: #1a1a1a;
+    }
+    .sig-bsub {
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(0,0,0,0.3);
+      margin-left: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="hero">
+    <div class="hero-label">v3 — Software Engineering</div>
+    <div class="hero-title">unify</div>
+    <div class="hero-sub">Five marks built for a technical brand</div>
+  </div>
+
+  <div class="palette-row">
+    <div class="palette-chip">
+      <div class="palette-dot" style="background: linear-gradient(135deg, #1b3d2c, #348a58);"></div>
+      <span class="palette-chip-label">Deep Green</span>
+    </div>
+    <div class="palette-chip">
+      <div class="palette-dot" style="background: linear-gradient(135deg, #6d1f3e, #e07a4b);"></div>
+      <span class="palette-chip-label">Warm Sunset</span>
+    </div>
+  </div>
+
+  <!-- ==================== 01: MERGE ==================== -->
+  <div class="option">
+    <div class="option-header">
+      <span class="option-num">01</span>
+      <span class="option-name">Merge</span>
+      <span class="option-desc">Git-inspired — two branches converging into one</span>
+    </div>
+    <div class="option-grid">
+      <div class="cell cell-dark">
+        <span class="cell-tag" style="color: #4a9a6a;">Dark</span>
+        <div class="mark g1">
+          <svg viewBox="0 0 44 44" fill="none">
+            <!-- Left branch -->
+            <circle cx="11" cy="8" r="3" fill="rgba(255,255,255,0.4)"/>
+            <line x1="11" y1="11" x2="11" y2="22" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M11 22 Q11 30 22 33" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <!-- Right branch (main) -->
+            <circle cx="33" cy="8" r="3" fill="white"/>
+            <line x1="33" y1="11" x2="33" y2="22" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M33 22 Q33 30 22 33" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <!-- Merged point -->
+            <circle cx="22" cy="36" r="3.5" fill="white"/>
+          </svg>
+        </div>
+        <div>
+          <span class="wm wm-lg wm-white">unify</span>
+        </div>
+      </div>
+      <div class="cell cell-light-green">
+        <span class="cell-tag" style="color: #2d5a3f;">Light</span>
+        <div class="lockup">
+          <div class="mark g1">
+            <svg viewBox="0 0 44 44" fill="none">
+              <circle cx="11" cy="8" r="3" fill="rgba(255,255,255,0.4)"/>
+              <line x1="11" y1="11" x2="11" y2="22" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M11 22 Q11 30 22 33" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+              <circle cx="33" cy="8" r="3" fill="white"/>
+              <line x1="33" y1="11" x2="33" y2="22" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M33 22 Q33 30 22 33" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+              <circle cx="22" cy="36" r="3.5" fill="white"/>
+            </svg>
+          </div>
+          <div>
+            <div class="wm wm-sm wm-dark">unify</div>
+            <div class="tag tag-muted-light">Software Engineering</div>
+          </div>
+        </div>
+      </div>
+      <div class="cell cell-dark">
+        <span class="cell-tag" style="color: #e07a4b;">Dark</span>
+        <div class="mark g2">
+          <svg viewBox="0 0 44 44" fill="none">
+            <circle cx="11" cy="8" r="3" fill="rgba(255,255,255,0.4)"/>
+            <line x1="11" y1="11" x2="11" y2="22" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M11 22 Q11 30 22 33" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <circle cx="33" cy="8" r="3" fill="white"/>
+            <line x1="33" y1="11" x2="33" y2="22" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M33 22 Q33 30 22 33" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <circle cx="22" cy="36" r="3.5" fill="white"/>
+          </svg>
+        </div>
+        <div>
+          <span class="wm wm-lg wm-white">unify</span>
+        </div>
+      </div>
+      <div class="cell cell-light-sunset">
+        <span class="cell-tag" style="color: #c0444a;">Light</span>
+        <div class="lockup">
+          <div class="mark g2">
+            <svg viewBox="0 0 44 44" fill="none">
+              <circle cx="11" cy="8" r="3" fill="rgba(255,255,255,0.4)"/>
+              <line x1="11" y1="11" x2="11" y2="22" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M11 22 Q11 30 22 33" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+              <circle cx="33" cy="8" r="3" fill="white"/>
+              <line x1="33" y1="11" x2="33" y2="22" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M33 22 Q33 30 22 33" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+              <circle cx="22" cy="36" r="3.5" fill="white"/>
+            </svg>
+          </div>
+          <div>
+            <div class="wm wm-sm wm-dark">unify</div>
+            <div class="tag tag-muted-light">Software Engineering</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 02: BRACKETS ==================== -->
+  <div class="option">
+    <div class="option-header">
+      <span class="option-num">02</span>
+      <span class="option-name">Brackets</span>
+      <span class="option-desc">Code syntax — opposing brackets closing into one expression</span>
+    </div>
+    <div class="option-grid">
+      <div class="cell cell-dark">
+        <div class="mark g1">
+          <svg viewBox="0 0 44 44" fill="none">
+            <!-- Left bracket { -->
+            <path d="M18 7 Q12 7 12 13 L12 18 Q12 22 8 22 Q12 22 12 26 L12 31 Q12 37 18 37" stroke="rgba(255,255,255,0.45)" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+            <!-- Right bracket } -->
+            <path d="M26 7 Q32 7 32 13 L32 18 Q32 22 36 22 Q32 22 32 26 L32 31 Q32 37 26 37" stroke="white" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+          </svg>
+        </div>
+        <span class="wm wm-lg wm-white">unify</span>
+      </div>
+      <div class="cell cell-light-green">
+        <div class="lockup">
+          <div class="mark g1">
+            <svg viewBox="0 0 44 44" fill="none">
+              <path d="M18 7 Q12 7 12 13 L12 18 Q12 22 8 22 Q12 22 12 26 L12 31 Q12 37 18 37" stroke="rgba(255,255,255,0.45)" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+              <path d="M26 7 Q32 7 32 13 L32 18 Q32 22 36 22 Q32 22 32 26 L32 31 Q32 37 26 37" stroke="white" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+            </svg>
+          </div>
+          <div>
+            <div class="wm wm-sm wm-dark">unify</div>
+            <div class="tag tag-muted-light">Software Engineering</div>
+          </div>
+        </div>
+      </div>
+      <div class="cell cell-dark">
+        <div class="mark g2">
+          <svg viewBox="0 0 44 44" fill="none">
+            <path d="M18 7 Q12 7 12 13 L12 18 Q12 22 8 22 Q12 22 12 26 L12 31 Q12 37 18 37" stroke="rgba(255,255,255,0.45)" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+            <path d="M26 7 Q32 7 32 13 L32 18 Q32 22 36 22 Q32 22 32 26 L32 31 Q32 37 26 37" stroke="white" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+          </svg>
+        </div>
+        <span class="wm wm-lg wm-white">unify</span>
+      </div>
+      <div class="cell cell-light-sunset">
+        <div class="lockup">
+          <div class="mark g2">
+            <svg viewBox="0 0 44 44" fill="none">
+              <path d="M18 7 Q12 7 12 13 L12 18 Q12 22 8 22 Q12 22 12 26 L12 31 Q12 37 18 37" stroke="rgba(255,255,255,0.45)" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+              <path d="M26 7 Q32 7 32 13 L32 18 Q32 22 36 22 Q32 22 32 26 L32 31 Q32 37 26 37" stroke="white" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+            </svg>
+          </div>
+          <div>
+            <div class="wm wm-sm wm-dark">unify</div>
+            <div class="tag tag-muted-light">Software Engineering</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 03: LAYERS ==================== -->
+  <div class="option">
+    <div class="option-header">
+      <span class="option-num">03</span>
+      <span class="option-name">Layers</span>
+      <span class="option-desc">Two offset planes snapping together — systems integration</span>
+    </div>
+    <div class="option-grid">
+      <div class="cell cell-dark">
+        <div class="mark g1">
+          <svg viewBox="0 0 44 44" fill="none">
+            <!-- Back layer -->
+            <rect x="6" y="10" width="22" height="22" rx="5" stroke="rgba(255,255,255,0.3)" stroke-width="2.5" fill="none"/>
+            <!-- Front layer -->
+            <rect x="16" y="12" width="22" height="22" rx="5" stroke="white" stroke-width="2.5" fill="none"/>
+            <!-- Connection point in overlap -->
+            <circle cx="27" cy="22" r="2" fill="rgba(255,255,255,0.7)"/>
+          </svg>
+        </div>
+        <span class="wm wm-lg wm-white">unify</span>
+      </div>
+      <div class="cell cell-light-green">
+        <div class="lockup">
+          <div class="mark g1">
+            <svg viewBox="0 0 44 44" fill="none">
+              <rect x="6" y="10" width="22" height="22" rx="5" stroke="rgba(255,255,255,0.3)" stroke-width="2.5" fill="none"/>
+              <rect x="16" y="12" width="22" height="22" rx="5" stroke="white" stroke-width="2.5" fill="none"/>
+              <circle cx="27" cy="22" r="2" fill="rgba(255,255,255,0.7)"/>
+            </svg>
+          </div>
+          <div>
+            <div class="wm wm-sm wm-dark">unify</div>
+            <div class="tag tag-muted-light">Software Engineering</div>
+          </div>
+        </div>
+      </div>
+      <div class="cell cell-dark">
+        <div class="mark g2">
+          <svg viewBox="0 0 44 44" fill="none">
+            <rect x="6" y="10" width="22" height="22" rx="5" stroke="rgba(255,255,255,0.3)" stroke-width="2.5" fill="none"/>
+            <rect x="16" y="12" width="22" height="22" rx="5" stroke="white" stroke-width="2.5" fill="none"/>
+            <circle cx="27" cy="22" r="2" fill="rgba(255,255,255,0.7)"/>
+          </svg>
+        </div>
+        <span class="wm wm-lg wm-white">unify</span>
+      </div>
+      <div class="cell cell-light-sunset">
+        <div class="lockup">
+          <div class="mark g2">
+            <svg viewBox="0 0 44 44" fill="none">
+              <rect x="6" y="10" width="22" height="22" rx="5" stroke="rgba(255,255,255,0.3)" stroke-width="2.5" fill="none"/>
+              <rect x="16" y="12" width="22" height="22" rx="5" stroke="white" stroke-width="2.5" fill="none"/>
+              <circle cx="27" cy="22" r="2" fill="rgba(255,255,255,0.7)"/>
+            </svg>
+          </div>
+          <div>
+            <div class="wm wm-sm wm-dark">unify</div>
+            <div class="tag tag-muted-light">Software Engineering</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 04: PIPELINE ==================== -->
+  <div class="option">
+    <div class="option-header">
+      <span class="option-num">04</span>
+      <span class="option-name">Pipeline</span>
+      <span class="option-desc">Data flowing through stages — inputs become one output</span>
+    </div>
+    <div class="option-grid">
+      <div class="cell cell-dark">
+        <div class="mark g1">
+          <svg viewBox="0 0 44 44" fill="none">
+            <!-- Three input dots -->
+            <circle cx="8" cy="12" r="2.5" fill="rgba(255,255,255,0.25)"/>
+            <circle cx="8" cy="22" r="2.5" fill="rgba(255,255,255,0.45)"/>
+            <circle cx="8" cy="32" r="2.5" fill="rgba(255,255,255,0.65)"/>
+            <!-- Lines to mid-node -->
+            <line x1="11" y1="12" x2="22" y2="22" stroke="rgba(255,255,255,0.25)" stroke-width="2" stroke-linecap="round"/>
+            <line x1="11" y1="22" x2="22" y2="22" stroke="rgba(255,255,255,0.45)" stroke-width="2" stroke-linecap="round"/>
+            <line x1="11" y1="32" x2="22" y2="22" stroke="rgba(255,255,255,0.65)" stroke-width="2" stroke-linecap="round"/>
+            <!-- Mid processing node -->
+            <circle cx="22" cy="22" r="4" fill="rgba(255,255,255,0.5)" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/>
+            <!-- Output line -->
+            <line x1="26" y1="22" x2="33" y2="22" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Output -->
+            <circle cx="36" cy="22" r="3" fill="white"/>
+          </svg>
+        </div>
+        <span class="wm wm-lg wm-white">unify</span>
+      </div>
+      <div class="cell cell-light-green">
+        <div class="lockup">
+          <div class="mark g1">
+            <svg viewBox="0 0 44 44" fill="none">
+              <circle cx="8" cy="12" r="2.5" fill="rgba(255,255,255,0.25)"/>
+              <circle cx="8" cy="22" r="2.5" fill="rgba(255,255,255,0.45)"/>
+              <circle cx="8" cy="32" r="2.5" fill="rgba(255,255,255,0.65)"/>
+              <line x1="11" y1="12" x2="22" y2="22" stroke="rgba(255,255,255,0.25)" stroke-width="2" stroke-linecap="round"/>
+              <line x1="11" y1="22" x2="22" y2="22" stroke="rgba(255,255,255,0.45)" stroke-width="2" stroke-linecap="round"/>
+              <line x1="11" y1="32" x2="22" y2="22" stroke="rgba(255,255,255,0.65)" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="22" cy="22" r="4" fill="rgba(255,255,255,0.5)" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/>
+              <line x1="26" y1="22" x2="33" y2="22" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="36" cy="22" r="3" fill="white"/>
+            </svg>
+          </div>
+          <div>
+            <div class="wm wm-sm wm-dark">unify</div>
+            <div class="tag tag-muted-light">Software Engineering</div>
+          </div>
+        </div>
+      </div>
+      <div class="cell cell-dark">
+        <div class="mark g2">
+          <svg viewBox="0 0 44 44" fill="none">
+            <circle cx="8" cy="12" r="2.5" fill="rgba(255,255,255,0.25)"/>
+            <circle cx="8" cy="22" r="2.5" fill="rgba(255,255,255,0.45)"/>
+            <circle cx="8" cy="32" r="2.5" fill="rgba(255,255,255,0.65)"/>
+            <line x1="11" y1="12" x2="22" y2="22" stroke="rgba(255,255,255,0.25)" stroke-width="2" stroke-linecap="round"/>
+            <line x1="11" y1="22" x2="22" y2="22" stroke="rgba(255,255,255,0.45)" stroke-width="2" stroke-linecap="round"/>
+            <line x1="11" y1="32" x2="22" y2="22" stroke="rgba(255,255,255,0.65)" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="22" cy="22" r="4" fill="rgba(255,255,255,0.5)" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/>
+            <line x1="26" y1="22" x2="33" y2="22" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="36" cy="22" r="3" fill="white"/>
+          </svg>
+        </div>
+        <span class="wm wm-lg wm-white">unify</span>
+      </div>
+      <div class="cell cell-light-sunset">
+        <div class="lockup">
+          <div class="mark g2">
+            <svg viewBox="0 0 44 44" fill="none">
+              <circle cx="8" cy="12" r="2.5" fill="rgba(255,255,255,0.25)"/>
+              <circle cx="8" cy="22" r="2.5" fill="rgba(255,255,255,0.45)"/>
+              <circle cx="8" cy="32" r="2.5" fill="rgba(255,255,255,0.65)"/>
+              <line x1="11" y1="12" x2="22" y2="22" stroke="rgba(255,255,255,0.25)" stroke-width="2" stroke-linecap="round"/>
+              <line x1="11" y1="22" x2="22" y2="22" stroke="rgba(255,255,255,0.45)" stroke-width="2" stroke-linecap="round"/>
+              <line x1="11" y1="32" x2="22" y2="22" stroke="rgba(255,255,255,0.65)" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="22" cy="22" r="4" fill="rgba(255,255,255,0.5)" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/>
+              <line x1="26" y1="22" x2="33" y2="22" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="36" cy="22" r="3" fill="white"/>
+            </svg>
+          </div>
+          <div>
+            <div class="wm wm-sm wm-dark">unify</div>
+            <div class="tag tag-muted-light">Software Engineering</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 05: CHEVRONS ==================== -->
+  <div class="option">
+    <div class="option-header">
+      <span class="option-num">05</span>
+      <span class="option-name">Chevrons</span>
+      <span class="option-desc">Two angle brackets converging — like &lt;&gt; closing a tag</span>
+    </div>
+    <div class="option-grid">
+      <div class="cell cell-dark">
+        <div class="mark g1">
+          <svg viewBox="0 0 44 44" fill="none">
+            <!-- Left chevron > pointing right -->
+            <path d="M10 12 L20 22 L10 32" stroke="rgba(255,255,255,0.4)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <!-- Right chevron < pointing left -->
+            <path d="M34 12 L24 22 L34 32" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+        </div>
+        <span class="wm wm-lg wm-white">unify</span>
+      </div>
+      <div class="cell cell-light-green">
+        <div class="lockup">
+          <div class="mark g1">
+            <svg viewBox="0 0 44 44" fill="none">
+              <path d="M10 12 L20 22 L10 32" stroke="rgba(255,255,255,0.4)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              <path d="M34 12 L24 22 L34 32" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </svg>
+          </div>
+          <div>
+            <div class="wm wm-sm wm-dark">unify</div>
+            <div class="tag tag-muted-light">Software Engineering</div>
+          </div>
+        </div>
+      </div>
+      <div class="cell cell-dark">
+        <div class="mark g2">
+          <svg viewBox="0 0 44 44" fill="none">
+            <path d="M10 12 L20 22 L10 32" stroke="rgba(255,255,255,0.4)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <path d="M34 12 L24 22 L34 32" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+        </div>
+        <span class="wm wm-lg wm-white">unify</span>
+      </div>
+      <div class="cell cell-light-sunset">
+        <div class="lockup">
+          <div class="mark g2">
+            <svg viewBox="0 0 44 44" fill="none">
+              <path d="M10 12 L20 22 L10 32" stroke="rgba(255,255,255,0.4)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              <path d="M34 12 L24 22 L34 32" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </svg>
+          </div>
+          <div>
+            <div class="wm wm-sm wm-dark">unify</div>
+            <div class="tag tag-muted-light">Software Engineering</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SIGNATURE PREVIEWS ==================== -->
+  <div class="sig-section">
+    <div class="sig-label">Email Signatures</div>
+    <div class="sig-grid">
+      <div class="sig-cell sig-cell-green">
+        <div class="sig-inner">
+          <div class="sig-mark g1">
+            <svg viewBox="0 0 44 44" fill="none">
+              <circle cx="11" cy="8" r="3" fill="rgba(255,255,255,0.4)"/>
+              <line x1="11" y1="11" x2="11" y2="22" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M11 22 Q11 30 22 33" stroke="rgba(255,255,255,0.4)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+              <circle cx="33" cy="8" r="3" fill="white"/>
+              <line x1="33" y1="11" x2="33" y2="22" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M33 22 Q33 30 22 33" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+              <circle cx="22" cy="36" r="3.5" fill="white"/>
+            </svg>
+          </div>
+          <div class="sig-info">
+            <div class="sig-name">Tomer Kurman</div>
+            <div class="sig-role">Founder & Software Engineer</div>
+            <div class="sig-bar sig-bar-green"></div>
+            <div class="sig-contact">
+              +1 (XXX) XXX-XXXX<br>
+              <a href="#" style="color:#1a1a1a;">tomer@unify.dev</a><br>
+              <a href="#" style="color:#2a6b45; font-weight:500;">unify.dev</a>
+            </div>
+            <div class="sig-brand-row">
+              <div class="sig-brand-mini g1">
+                <svg viewBox="0 0 44 44" fill="none">
+                  <circle cx="11" cy="8" r="3.5" fill="rgba(255,255,255,0.4)"/>
+                  <line x1="11" y1="11.5" x2="11" y2="22" stroke="rgba(255,255,255,0.4)" stroke-width="3" stroke-linecap="round"/>
+                  <path d="M11 22 Q11 30 22 33" stroke="rgba(255,255,255,0.4)" stroke-width="3" stroke-linecap="round" fill="none"/>
+                  <circle cx="33" cy="8" r="3.5" fill="white"/>
+                  <line x1="33" y1="11.5" x2="33" y2="22" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                  <path d="M33 22 Q33 30 22 33" stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/>
+                  <circle cx="22" cy="36" r="4" fill="white"/>
+                </svg>
+              </div>
+              <span class="sig-bname">unify</span>
+              <span class="sig-bsub">Software Engineering</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="sig-cell sig-cell-sunset">
+        <div class="sig-inner">
+          <div class="sig-mark g2">
+            <svg viewBox="0 0 44 44" fill="none">
+              <path d="M18 7 Q12 7 12 13 L12 18 Q12 22 8 22 Q12 22 12 26 L12 31 Q12 37 18 37" stroke="rgba(255,255,255,0.45)" stroke-width="3" stroke-linecap="round" fill="none"/>
+              <path d="M26 7 Q32 7 32 13 L32 18 Q32 22 36 22 Q32 22 32 26 L32 31 Q32 37 26 37" stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/>
+            </svg>
+          </div>
+          <div class="sig-info">
+            <div class="sig-name">Tomer Kurman</div>
+            <div class="sig-role">Founder & Software Engineer</div>
+            <div class="sig-bar sig-bar-sunset"></div>
+            <div class="sig-contact">
+              +1 (XXX) XXX-XXXX<br>
+              <a href="#" style="color:#1a1a1a;">tomer@unify.dev</a><br>
+              <a href="#" style="color:#b83a48; font-weight:500;">unify.dev</a>
+            </div>
+            <div class="sig-brand-row">
+              <div class="sig-brand-mini g2">
+                <svg viewBox="0 0 44 44" fill="none">
+                  <path d="M18 7 Q12 7 12 13 L12 18 Q12 22 8 22 Q12 22 12 26 L12 31 Q12 37 18 37" stroke="rgba(255,255,255,0.5)" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+                  <path d="M26 7 Q32 7 32 13 L32 18 Q32 22 36 22 Q32 22 32 26 L32 31 Q32 37 26 37" stroke="white" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+                </svg>
+              </div>
+              <span class="sig-bname">unify</span>
+              <span class="sig-bsub">Software Engineering</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
