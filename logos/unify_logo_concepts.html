@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Unify — Logo Concepts</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=DM+Sans:ital,wght@0,400;0,500;0,700&family=Space+Grotesk:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0a0a0a;
+      color: #fafafa;
+      padding: 0;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 80px 40px 60px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .hero h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: #666;
+      margin-bottom: 16px;
+    }
+    .hero h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 48px;
+      font-weight: 700;
+      letter-spacing: -1.5px;
+      background: linear-gradient(135deg, #fff 0%, #999 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .concepts-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px;
+      gap: 40px;
+    }
+
+    .concept {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      overflow: hidden;
+      background: #111;
+      transition: border-color 0.3s;
+    }
+    .concept:hover {
+      border-color: rgba(255,255,255,0.15);
+    }
+
+    .concept-header {
+      padding: 32px 40px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .concept-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #555;
+    }
+    .concept-palette-name {
+      font-size: 12px;
+      color: #666;
+      font-weight: 500;
+    }
+
+    .concept-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+    }
+
+    /* Dark showcase */
+    .showcase-dark {
+      padding: 60px 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      min-height: 320px;
+    }
+
+    /* Light showcase */
+    .showcase-light {
+      padding: 60px 40px;
+      background: #fafafa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      min-height: 320px;
+    }
+
+    /* Logo mark containers */
+    .logo-mark {
+      width: 72px;
+      height: 72px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .logo-mark-lg {
+      width: 88px;
+      height: 88px;
+      border-radius: 22px;
+    }
+
+    /* Wordmark */
+    .wordmark {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .wordmark-text {
+      font-family: 'Outfit', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.8px;
+    }
+    .wordmark-sub {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      opacity: 0.5;
+    }
+
+    /* Lockup: icon + wordmark horizontal */
+    .lockup {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .lockup .logo-mark {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+    }
+    .lockup .wordmark-text {
+      font-size: 24px;
+    }
+
+    /* Signature preview */
+    .sig-preview {
+      padding: 40px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .sig-preview-light {
+      background: #fafafa;
+      border-top: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .sig-table {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .sig-name {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+    }
+    .sig-title {
+      font-size: 12px;
+      opacity: 0.55;
+      padding-top: 1px;
+    }
+    .sig-divider {
+      width: 28px;
+      height: 2px;
+      border-radius: 1px;
+      margin: 10px 0;
+    }
+    .sig-contact {
+      font-size: 12px;
+      opacity: 0.65;
+      line-height: 1.7;
+    }
+    .sig-contact a {
+      text-decoration: none;
+    }
+    .sig-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .sig-brand-mark {
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sig-brand-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .sig-brand-sub {
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      opacity: 0.4;
+      margin-left: 8px;
+    }
+
+    /* Color swatches row */
+    .swatches {
+      display: flex;
+      gap: 8px;
+      padding: 24px 40px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .swatch {
+      flex: 1;
+      height: 6px;
+      border-radius: 3px;
+    }
+
+    /* ===== CONCEPT A: AMBER / GOLD ===== */
+    .concept-a .logo-mark { background: linear-gradient(135deg, #b8860b 0%, #d4a017 40%, #f0c040 100%); }
+    .concept-a .logo-mark svg { filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2)); }
+    .concept-a .wordmark-text.dark { color: #fafafa; }
+    .concept-a .wordmark-text.light { color: #1a1a1a; }
+    .concept-a .sig-divider { background: linear-gradient(90deg, #b8860b, #f0c040); }
+    .concept-a .sig-brand-mark { background: linear-gradient(135deg, #b8860b, #f0c040); }
+
+    /* ===== CONCEPT B: TERRACOTTA / RUST ===== */
+    .concept-b .logo-mark { background: linear-gradient(135deg, #8b3a2a 0%, #c0533a 50%, #d4724a 100%); }
+    .concept-b .wordmark-text.dark { color: #fafafa; }
+    .concept-b .wordmark-text.light { color: #1a1a1a; }
+    .concept-b .sig-divider { background: linear-gradient(90deg, #8b3a2a, #d4724a); }
+    .concept-b .sig-brand-mark { background: linear-gradient(135deg, #8b3a2a, #d4724a); }
+
+    /* ===== CONCEPT C: DEEP GREEN / FOREST ===== */
+    .concept-c .logo-mark { background: linear-gradient(135deg, #1a3a2a 0%, #2d5a3f 50%, #3d7a55 100%); }
+    .concept-c .wordmark-text.dark { color: #fafafa; }
+    .concept-c .wordmark-text.light { color: #1a1a1a; }
+    .concept-c .sig-divider { background: linear-gradient(90deg, #1a3a2a, #4a9a6a); }
+    .concept-c .sig-brand-mark { background: linear-gradient(135deg, #1a3a2a, #3d7a55); }
+
+    /* ===== CONCEPT D: WARM SUNSET ===== */
+    .concept-d .logo-mark { background: linear-gradient(135deg, #6b2040 0%, #c0444a 40%, #e8804a 100%); }
+    .concept-d .wordmark-text.dark { color: #fafafa; }
+    .concept-d .wordmark-text.light { color: #1a1a1a; }
+    .concept-d .sig-divider { background: linear-gradient(90deg, #6b2040, #e8804a); }
+    .concept-d .sig-brand-mark { background: linear-gradient(135deg, #6b2040 0%, #c0444a 40%, #e8804a 100%); }
+
+    /* SVG styling */
+    .logo-mark svg {
+      width: 38px;
+      height: 38px;
+    }
+    .logo-mark-lg svg {
+      width: 46px;
+      height: 46px;
+    }
+    .lockup .logo-mark svg {
+      width: 26px;
+      height: 26px;
+    }
+    .sig-brand-mark svg {
+      width: 20px;
+      height: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="hero">
+    <h1>Brand Exploration</h1>
+    <h2>unify</h2>
+  </div>
+
+  <div class="concepts-grid">
+
+    <!-- ==================== CONCEPT A: AMBER ==================== -->
+    <div class="concept concept-a">
+      <div class="concept-header">
+        <span class="concept-label">Concept A</span>
+        <span class="concept-palette-name">Amber &amp; Gold</span>
+      </div>
+
+      <div class="concept-body">
+        <div class="showcase-dark">
+          <!-- Mark: Stylized U as two converging paths -->
+          <div class="logo-mark logo-mark-lg">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Two paths converging into one = "unify" -->
+              <path d="M12 10 L12 28 Q12 38 24 38 Q36 38 36 28 L36 10" stroke="white" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+              <path d="M20 10 L20 26 Q20 32 24 32 Q28 32 28 26 L28 10" stroke="rgba(255,255,255,0.4)" stroke-width="3" stroke-linecap="round" fill="none"/>
+            </svg>
+          </div>
+          <div class="wordmark">
+            <span class="wordmark-text dark">unify</span>
+            <span class="wordmark-sub" style="color: rgba(255,255,255,0.4);">Software Engineering</span>
+          </div>
+        </div>
+        <div class="showcase-light">
+          <div class="lockup">
+            <div class="logo-mark">
+              <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 10 L12 28 Q12 38 24 38 Q36 38 36 28 L36 10" stroke="white" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+                <path d="M20 10 L20 26 Q20 32 24 32 Q28 32 28 26 L28 10" stroke="rgba(255,255,255,0.4)" stroke-width="3" stroke-linecap="round" fill="none"/>
+              </svg>
+            </div>
+            <div>
+              <div class="wordmark-text light" style="font-size: 22px;">unify</div>
+              <div class="wordmark-sub" style="color: rgba(0,0,0,0.35); font-size: 9px;">Software Engineering</div>
+            </div>
+          </div>
+          <!-- Sig preview inline -->
+          <div style="margin-top: 20px; padding-top: 24px; border-top: 1px solid rgba(0,0,0,0.06); width: 100%;">
+            <table class="sig-table" style="color: #1a1a1a;">
+              <tr><td>
+                <div class="sig-name">Tomer Kurman</div>
+                <div class="sig-title">Founder & Software Engineer</div>
+                <div class="sig-divider"></div>
+                <div class="sig-contact">
+                  +1 (XXX) XXX-XXXX<br>
+                  <a href="#" style="color: #1a1a1a;">tomer@unify.dev</a><br>
+                  <a href="#" style="color: #b8860b; font-weight: 500;">unify.dev</a>
+                </div>
+                <div class="sig-brand">
+                  <div class="sig-brand-mark">
+                    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 10 L12 28 Q12 38 24 38 Q36 38 36 28 L36 10" stroke="white" stroke-width="5" stroke-linecap="round" fill="none"/>
+                      <path d="M20 10 L20 26 Q20 32 24 32 Q28 32 28 26 L28 10" stroke="rgba(255,255,255,0.4)" stroke-width="3" stroke-linecap="round" fill="none"/>
+                    </svg>
+                  </div>
+                  <span class="sig-brand-name" style="color: #1a1a1a;">unify</span>
+                  <span class="sig-brand-sub" style="color: #1a1a1a;">Software Engineering</span>
+                </div>
+              </td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="swatches">
+        <div class="swatch" style="background: #8b6914;"></div>
+        <div class="swatch" style="background: #b8860b;"></div>
+        <div class="swatch" style="background: #d4a017;"></div>
+        <div class="swatch" style="background: #f0c040;"></div>
+        <div class="swatch" style="background: #faf0d0;"></div>
+      </div>
+    </div>
+
+    <!-- ==================== CONCEPT B: TERRACOTTA ==================== -->
+    <div class="concept concept-b">
+      <div class="concept-header">
+        <span class="concept-label">Concept B</span>
+        <span class="concept-palette-name">Terracotta &amp; Rust</span>
+      </div>
+
+      <div class="concept-body">
+        <div class="showcase-dark">
+          <!-- Mark: Abstract "convergence" — three lines merging -->
+          <div class="logo-mark logo-mark-lg">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Three lines converging to a single point = unification -->
+              <path d="M10 8 L24 40" stroke="white" stroke-width="4" stroke-linecap="round"/>
+              <path d="M24 8 L24 40" stroke="rgba(255,255,255,0.55)" stroke-width="4" stroke-linecap="round"/>
+              <path d="M38 8 L24 40" stroke="rgba(255,255,255,0.3)" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="wordmark">
+            <span class="wordmark-text dark">unify</span>
+            <span class="wordmark-sub" style="color: rgba(255,255,255,0.4);">Software Engineering</span>
+          </div>
+        </div>
+        <div class="showcase-light">
+          <div class="lockup">
+            <div class="logo-mark">
+              <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 8 L24 40" stroke="white" stroke-width="4" stroke-linecap="round"/>
+                <path d="M24 8 L24 40" stroke="rgba(255,255,255,0.55)" stroke-width="4" stroke-linecap="round"/>
+                <path d="M38 8 L24 40" stroke="rgba(255,255,255,0.3)" stroke-width="4" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div>
+              <div class="wordmark-text light" style="font-size: 22px;">unify</div>
+              <div class="wordmark-sub" style="color: rgba(0,0,0,0.35); font-size: 9px;">Software Engineering</div>
+            </div>
+          </div>
+          <div style="margin-top: 20px; padding-top: 24px; border-top: 1px solid rgba(0,0,0,0.06); width: 100%;">
+            <table class="sig-table" style="color: #1a1a1a;">
+              <tr><td>
+                <div class="sig-name">Tomer Kurman</div>
+                <div class="sig-title">Founder & Software Engineer</div>
+                <div class="sig-divider"></div>
+                <div class="sig-contact">
+                  +1 (XXX) XXX-XXXX<br>
+                  <a href="#" style="color: #1a1a1a;">tomer@unify.dev</a><br>
+                  <a href="#" style="color: #c0533a; font-weight: 500;">unify.dev</a>
+                </div>
+                <div class="sig-brand">
+                  <div class="sig-brand-mark">
+                    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M10 8 L24 40" stroke="white" stroke-width="4.5" stroke-linecap="round"/>
+                      <path d="M24 8 L24 40" stroke="rgba(255,255,255,0.55)" stroke-width="4.5" stroke-linecap="round"/>
+                      <path d="M38 8 L24 40" stroke="rgba(255,255,255,0.3)" stroke-width="4.5" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                  <span class="sig-brand-name" style="color: #1a1a1a;">unify</span>
+                  <span class="sig-brand-sub" style="color: #1a1a1a;">Software Engineering</span>
+                </div>
+              </td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="swatches">
+        <div class="swatch" style="background: #6b2a1e;"></div>
+        <div class="swatch" style="background: #8b3a2a;"></div>
+        <div class="swatch" style="background: #c0533a;"></div>
+        <div class="swatch" style="background: #d4724a;"></div>
+        <div class="swatch" style="background: #f0ddd0;"></div>
+      </div>
+    </div>
+
+    <!-- ==================== CONCEPT C: DEEP GREEN ==================== -->
+    <div class="concept concept-c">
+      <div class="concept-header">
+        <span class="concept-label">Concept C</span>
+        <span class="concept-palette-name">Deep Forest Green</span>
+      </div>
+
+      <div class="concept-body">
+        <div class="showcase-dark">
+          <!-- Mark: Interlocking rings / overlap = unity -->
+          <div class="logo-mark logo-mark-lg">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="19" cy="24" r="12" stroke="white" stroke-width="3.5" fill="none" opacity="0.4"/>
+              <circle cx="29" cy="24" r="12" stroke="white" stroke-width="3.5" fill="none" opacity="0.85"/>
+              <!-- Highlight the overlap zone -->
+              <path d="M24 14.5 Q21 19 21 24 Q21 29 24 33.5 Q27 29 27 24 Q27 19 24 14.5Z" fill="rgba(255,255,255,0.25)"/>
+            </svg>
+          </div>
+          <div class="wordmark">
+            <span class="wordmark-text dark">unify</span>
+            <span class="wordmark-sub" style="color: rgba(255,255,255,0.4);">Software Engineering</span>
+          </div>
+        </div>
+        <div class="showcase-light">
+          <div class="lockup">
+            <div class="logo-mark">
+              <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="19" cy="24" r="12" stroke="white" stroke-width="3.5" fill="none" opacity="0.4"/>
+                <circle cx="29" cy="24" r="12" stroke="white" stroke-width="3.5" fill="none" opacity="0.85"/>
+                <path d="M24 14.5 Q21 19 21 24 Q21 29 24 33.5 Q27 29 27 24 Q27 19 24 14.5Z" fill="rgba(255,255,255,0.25)"/>
+              </svg>
+            </div>
+            <div>
+              <div class="wordmark-text light" style="font-size: 22px;">unify</div>
+              <div class="wordmark-sub" style="color: rgba(0,0,0,0.35); font-size: 9px;">Software Engineering</div>
+            </div>
+          </div>
+          <div style="margin-top: 20px; padding-top: 24px; border-top: 1px solid rgba(0,0,0,0.06); width: 100%;">
+            <table class="sig-table" style="color: #1a1a1a;">
+              <tr><td>
+                <div class="sig-name">Tomer Kurman</div>
+                <div class="sig-title">Founder & Software Engineer</div>
+                <div class="sig-divider"></div>
+                <div class="sig-contact">
+                  +1 (XXX) XXX-XXXX<br>
+                  <a href="#" style="color: #1a1a1a;">tomer@unify.dev</a><br>
+                  <a href="#" style="color: #2d5a3f; font-weight: 500;">unify.dev</a>
+                </div>
+                <div class="sig-brand">
+                  <div class="sig-brand-mark">
+                    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="19" cy="24" r="12" stroke="white" stroke-width="4" fill="none" opacity="0.4"/>
+                      <circle cx="29" cy="24" r="12" stroke="white" stroke-width="4" fill="none" opacity="0.85"/>
+                      <path d="M24 14.5 Q21 19 21 24 Q21 29 24 33.5 Q27 29 27 24 Q27 19 24 14.5Z" fill="rgba(255,255,255,0.3)"/>
+                    </svg>
+                  </div>
+                  <span class="sig-brand-name" style="color: #1a1a1a;">unify</span>
+                  <span class="sig-brand-sub" style="color: #1a1a1a;">Software Engineering</span>
+                </div>
+              </td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="swatches">
+        <div class="swatch" style="background: #1a3a2a;"></div>
+        <div class="swatch" style="background: #2d5a3f;"></div>
+        <div class="swatch" style="background: #3d7a55;"></div>
+        <div class="swatch" style="background: #4a9a6a;"></div>
+        <div class="swatch" style="background: #d4ead9;"></div>
+      </div>
+    </div>
+
+    <!-- ==================== CONCEPT D: WARM SUNSET ==================== -->
+    <div class="concept concept-d">
+      <div class="concept-header">
+        <span class="concept-label">Concept D</span>
+        <span class="concept-palette-name">Warm Sunset</span>
+      </div>
+
+      <div class="concept-body">
+        <div class="showcase-dark">
+          <!-- Mark: Bold U with inner cut creating a forward-leaning shape -->
+          <div class="logo-mark logo-mark-lg">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Stylized U with a dynamic slash through it -->
+              <path d="M13 8 L13 28 Q13 40 24 40 Q35 40 35 28 L35 8" stroke="white" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+              <!-- Diagonal accent line cutting through -->
+              <line x1="32" y1="6" x2="16" y2="42" stroke="rgba(255,255,255,0.3)" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="wordmark">
+            <span class="wordmark-text dark">unify</span>
+            <span class="wordmark-sub" style="color: rgba(255,255,255,0.4);">Software Engineering</span>
+          </div>
+        </div>
+        <div class="showcase-light">
+          <div class="lockup">
+            <div class="logo-mark">
+              <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M13 8 L13 28 Q13 40 24 40 Q35 40 35 28 L35 8" stroke="white" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+                <line x1="32" y1="6" x2="16" y2="42" stroke="rgba(255,255,255,0.3)" stroke-width="2.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div>
+              <div class="wordmark-text light" style="font-size: 22px;">unify</div>
+              <div class="wordmark-sub" style="color: rgba(0,0,0,0.35); font-size: 9px;">Software Engineering</div>
+            </div>
+          </div>
+          <div style="margin-top: 20px; padding-top: 24px; border-top: 1px solid rgba(0,0,0,0.06); width: 100%;">
+            <table class="sig-table" style="color: #1a1a1a;">
+              <tr><td>
+                <div class="sig-name">Tomer Kurman</div>
+                <div class="sig-title">Founder & Software Engineer</div>
+                <div class="sig-divider"></div>
+                <div class="sig-contact">
+                  +1 (XXX) XXX-XXXX<br>
+                  <a href="#" style="color: #1a1a1a;">tomer@unify.dev</a><br>
+                  <a href="#" style="color: #c0444a; font-weight: 500;">unify.dev</a>
+                </div>
+                <div class="sig-brand">
+                  <div class="sig-brand-mark">
+                    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M13 8 L13 28 Q13 40 24 40 Q35 40 35 28 L35 8" stroke="white" stroke-width="6" stroke-linecap="round" fill="none"/>
+                      <line x1="32" y1="6" x2="16" y2="42" stroke="rgba(255,255,255,0.3)" stroke-width="3" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                  <span class="sig-brand-name" style="color: #1a1a1a;">unify</span>
+                  <span class="sig-brand-sub" style="color: #1a1a1a;">Software Engineering</span>
+                </div>
+              </td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="swatches">
+        <div class="swatch" style="background: #6b2040;"></div>
+        <div class="swatch" style="background: #c0444a;"></div>
+        <div class="swatch" style="background: #d86a4a;"></div>
+        <div class="swatch" style="background: #e8804a;"></div>
+        <div class="swatch" style="background: #fae8d8;"></div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

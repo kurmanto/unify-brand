@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Unify — Email Signature</title>
+  <style>
+    /* Preview wrapper only — not part of the signature */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f7;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 20px;
+      margin: 0;
+      min-height: 100vh;
+    }
+    .preview-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #8e8e93;
+      margin-bottom: 24px;
+    }
+    .preview-container {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.06);
+      padding: 48px;
+      max-width: 680px;
+      width: 100%;
+    }
+    .brand-section {
+      margin-top: 60px;
+      max-width: 680px;
+      width: 100%;
+    }
+    .brand-section h2 {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #8e8e93;
+      margin-bottom: 20px;
+    }
+    .color-swatches {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .swatch {
+      text-align: center;
+    }
+    .swatch-block {
+      width: 80px;
+      height: 80px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+    }
+    .swatch-label {
+      font-size: 11px;
+      color: #8e8e93;
+      letter-spacing: 0.5px;
+    }
+    .copy-instructions {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.06);
+      padding: 32px;
+      margin-top: 24px;
+    }
+    .copy-instructions p {
+      font-size: 14px;
+      color: #48484a;
+      line-height: 1.7;
+      margin: 0 0 8px;
+    }
+    .copy-instructions code {
+      background: #f5f5f7;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="preview-label">Email Signature Preview</div>
+
+  <div class="preview-container">
+
+    <!-- ============================================================
+         START COPYING HERE — Select everything inside this comment
+         down to "STOP COPYING HERE" for your email client.
+         ============================================================ -->
+
+    <table cellpadding="0" cellspacing="0" border="0" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; line-height: 1.4; color: #1d1d1f;">
+      <tr>
+        <td style="padding-right: 24px; vertical-align: top;">
+          <!-- Logo mark -->
+          <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+              <td style="width: 56px; height: 56px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); border-radius: 14px; text-align: center; vertical-align: middle;">
+                <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 22px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">U</span>
+              </td>
+            </tr>
+          </table>
+        </td>
+        <td style="vertical-align: top;">
+          <!-- Name -->
+          <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+              <td style="font-size: 17px; font-weight: 600; color: #1d1d1f; letter-spacing: -0.2px; padding-bottom: 2px;">
+                Tomer Kurman
+              </td>
+            </tr>
+            <tr>
+              <td style="font-size: 13px; color: #6e6e73; padding-bottom: 12px;">
+                Founder &amp; Software Engineer
+              </td>
+            </tr>
+            <!-- Divider -->
+            <tr>
+              <td style="padding-bottom: 12px;">
+                <table cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td style="width: 32px; height: 2px; background: linear-gradient(90deg, #0f3460, #e94560); border-radius: 1px;"></td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <!-- Contact details -->
+            <tr>
+              <td style="font-size: 13px; color: #48484a; padding-bottom: 3px;">
+                <a href="tel:+1XXXXXXXXXX" style="color: #48484a; text-decoration: none;">+1 (XXX) XXX-XXXX</a>
+              </td>
+            </tr>
+            <tr>
+              <td style="font-size: 13px; color: #48484a; padding-bottom: 3px;">
+                <a href="mailto:tomer@unify.dev" style="color: #48484a; text-decoration: none;">tomer@unify.dev</a>
+              </td>
+            </tr>
+            <tr>
+              <td style="font-size: 13px; padding-bottom: 14px;">
+                <a href="https://unify.dev" style="color: #0f3460; text-decoration: none; font-weight: 500;">unify.dev</a>
+              </td>
+            </tr>
+            <!-- Brand tagline -->
+            <tr>
+              <td>
+                <table cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td style="font-size: 20px; font-weight: 700; color: #1d1d1f; letter-spacing: -0.8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+                      unify
+                    </td>
+                    <td style="padding-left: 10px; font-size: 11px; color: #8e8e93; letter-spacing: 0.5px; text-transform: uppercase; vertical-align: middle;">
+                      Software Engineering
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+
+    <!-- ============================================================
+         STOP COPYING HERE
+         ============================================================ -->
+
+  </div>
+
+  <!-- Brand Guide -->
+  <div class="brand-section">
+    <h2>Brand Palette</h2>
+    <div class="color-swatches">
+      <div class="swatch">
+        <div class="swatch-block" style="background: #1a1a2e;"></div>
+        <div class="swatch-label">Deep Navy<br>#1A1A2E</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background: #16213e;"></div>
+        <div class="swatch-label">Midnight<br>#16213E</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background: #0f3460;"></div>
+        <div class="swatch-label">Royal Blue<br>#0F3460</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background: #e94560;"></div>
+        <div class="swatch-label">Signal Red<br>#E94560</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background: #f5f5f7;"></div>
+        <div class="swatch-label">Cloud<br>#F5F5F7</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background: #1d1d1f;"></div>
+        <div class="swatch-label">Ink<br>#1D1D1F</div>
+      </div>
+    </div>
+
+    <div class="copy-instructions">
+      <p><strong>How to install in Gmail:</strong></p>
+      <p>1. Open this file in a browser</p>
+      <p>2. Select the signature area (name through "Software Engineering")</p>
+      <p>3. Copy (<code>Cmd+C</code>)</p>
+      <p>4. Gmail → Settings → Signature → Paste (<code>Cmd+V</code>)</p>
+      <p style="margin-top: 16px;"><strong>How to install in Outlook:</strong></p>
+      <p>1. Same copy step as above</p>
+      <p>2. Outlook → Settings → Mail → Compose → Email signature → Paste</p>
+      <p style="margin-top: 16px; color: #8e8e93; font-size: 12px;">Replace placeholder phone, email, and URL with your real details before copying.</p>
+    </div>
+  </div>
+
+</body>
+</html>

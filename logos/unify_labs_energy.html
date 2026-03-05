@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Unify Labs — Orbital Rings Mark</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #060606;
+      color: #fafafa;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 72px 40px 20px;
+    }
+    .hero-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: #444;
+      margin-bottom: 14px;
+    }
+    .hero-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 44px;
+      font-weight: 700;
+      letter-spacing: -1.5px;
+      color: #fff;
+    }
+    .hero-sub {
+      font-size: 14px;
+      color: #555;
+      margin-top: 10px;
+    }
+
+    .palette-row {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      padding: 40px 0 48px;
+    }
+    .palette-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 100px;
+    }
+    .palette-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+    }
+    .palette-chip-label {
+      font-size: 12px;
+      color: #777;
+      font-weight: 500;
+    }
+
+    /* Option card */
+    .option {
+      max-width: 1100px;
+      margin: 0 auto 48px;
+      padding: 0 32px;
+    }
+    .option-header {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      margin-bottom: 20px;
+      padding: 0 8px;
+    }
+    .option-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: #ccc;
+      letter-spacing: -0.3px;
+    }
+    .option-desc {
+      font-size: 13px;
+      color: #555;
+      margin-left: auto;
+    }
+
+    .option-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 24px;
+      gap: 24px;
+      position: relative;
+    }
+    .cell-dark { background: #111; }
+    .cell-light-green { background: #f4f9f5; }
+    .cell-light-sunset { background: #fdf7f4; }
+
+    .cell-tag {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      opacity: 0.25;
+    }
+
+    /* Mark */
+    .mark {
+      width: 80px;
+      height: 80px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .mark svg { width: 44px; height: 44px; }
+
+    .g1 { background: linear-gradient(145deg, #1b3d2c, #2a6b45, #348a58); }
+    .g2 { background: linear-gradient(145deg, #6d1f3e, #b83a48, #e07a4b); }
+
+    /* Lockup */
+    .lockup {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .lockup .mark {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+    }
+    .lockup .mark svg { width: 22px; height: 22px; }
+
+    .wm {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      letter-spacing: -0.6px;
+    }
+    .wm-lg { font-size: 26px; }
+    .wm-sm { font-size: 20px; }
+    .wm-white { color: #fff; }
+    .wm-dark { color: #111; }
+
+    .tag {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .tag-muted-light { color: rgba(0,0,0,0.3); }
+    .tag-muted-dark { color: rgba(255,255,255,0.25); }
+
+    /* Size comparison strip */
+    .sizes-section {
+      max-width: 1100px;
+      margin: 24px auto 80px;
+      padding: 0 32px;
+    }
+    .sizes-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #333;
+      margin-bottom: 20px;
+      padding: 0 8px;
+    }
+    .sizes-grid {
+      display: flex;
+      justify-content: center;
+    }
+    .sizes-cell {
+      background: #111;
+      padding: 40px 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      border-radius: 20px;
+    }
+    .sizes-cell .size-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: #444;
+      letter-spacing: 1px;
+    }
+    .mark-80 { width: 80px; height: 80px; border-radius: 20px; }
+    .mark-80 svg { width: 44px; height: 44px; }
+    .mark-44 { width: 44px; height: 44px; border-radius: 11px; }
+    .mark-44 svg { width: 24px; height: 24px; }
+    .mark-32 { width: 32px; height: 32px; border-radius: 8px; }
+    .mark-32 svg { width: 18px; height: 18px; }
+  </style>
+</head>
+<body>
+
+  <!-- Shared SVG defs for glow filter -->
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur"/>
+        <feMerge>
+          <feMergeNode in="blur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+      <filter id="glow-lg" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur"/>
+        <feMerge>
+          <feMergeNode in="blur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+      <radialGradient id="energy-ball" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="white" stop-opacity="1"/>
+        <stop offset="55%" stop-color="white" stop-opacity="0.85"/>
+        <stop offset="100%" stop-color="white" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+  </svg>
+
+  <div class="hero">
+    <div class="hero-label">Labs — Orbital Rings</div>
+    <div class="hero-title">unify</div>
+    <div class="hero-sub">Refined atom-inspired mark — elliptical orbits around a glowing energy core</div>
+  </div>
+
+  <div class="palette-row">
+    <div class="palette-chip">
+      <div class="palette-dot" style="background: linear-gradient(135deg, #1b3d2c, #348a58);"></div>
+      <span class="palette-chip-label">Deep Green</span>
+    </div>
+    <div class="palette-chip">
+      <div class="palette-dot" style="background: linear-gradient(135deg, #6d1f3e, #e07a4b);"></div>
+      <span class="palette-chip-label">Warm Sunset</span>
+    </div>
+  </div>
+
+  <!-- ==================== ORBITAL RINGS ==================== -->
+  <div class="option">
+    <div class="option-header">
+      <span class="option-name">Orbital Rings</span>
+      <span class="option-desc">Atom-inspired — elliptical orbits around a glowing core</span>
+    </div>
+    <div class="option-grid">
+      <!-- Dark Green -->
+      <div class="cell cell-dark">
+        <span class="cell-tag" style="color: #4a9a6a;">Dark</span>
+        <div class="mark g1">
+          <svg viewBox="0 0 44 44" fill="none">
+            <circle cx="22" cy="22" r="7" fill="url(#energy-ball)" filter="url(#glow)"/>
+            <circle cx="22" cy="22" r="4" fill="white"/>
+            <ellipse cx="22" cy="22" rx="16" ry="5" stroke="rgba(255,255,255,0.6)" stroke-width="1.8" fill="none" transform="rotate(-30 22 22)"/>
+            <ellipse cx="22" cy="22" rx="16" ry="6.5" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" fill="none" transform="rotate(40 22 22)"/>
+            <ellipse cx="22" cy="22" rx="16" ry="7" stroke="rgba(255,255,255,0.18)" stroke-width="1.5" fill="none" transform="rotate(90 22 22)"/>
+          </svg>
+        </div>
+        <div>
+          <span class="wm wm-lg wm-white">unify</span>
+        </div>
+      </div>
+      <!-- Light Green lockup -->
+      <div class="cell cell-light-green">
+        <span class="cell-tag" style="color: #2d5a3f;">Light</span>
+        <div class="lockup">
+          <div class="mark g1">
+            <svg viewBox="0 0 44 44" fill="none">
+              <circle cx="22" cy="22" r="7" fill="url(#energy-ball)" filter="url(#glow)"/>
+              <circle cx="22" cy="22" r="4" fill="white"/>
+              <ellipse cx="22" cy="22" rx="16" ry="5" stroke="rgba(255,255,255,0.6)" stroke-width="1.8" fill="none" transform="rotate(-30 22 22)"/>
+              <ellipse cx="22" cy="22" rx="16" ry="6.5" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" fill="none" transform="rotate(40 22 22)"/>
+              <ellipse cx="22" cy="22" rx="16" ry="7" stroke="rgba(255,255,255,0.18)" stroke-width="1.5" fill="none" transform="rotate(90 22 22)"/>
+            </svg>
+          </div>
+          <div>
+            <div class="wm wm-sm wm-dark">unify</div>
+            <div class="tag tag-muted-light">Labs</div>
+          </div>
+        </div>
+      </div>
+      <!-- Dark Sunset -->
+      <div class="cell cell-dark">
+        <span class="cell-tag" style="color: #e07a4b;">Dark</span>
+        <div class="mark g2">
+          <svg viewBox="0 0 44 44" fill="none">
+            <circle cx="22" cy="22" r="7" fill="url(#energy-ball)" filter="url(#glow)"/>
+            <circle cx="22" cy="22" r="4" fill="white"/>
+            <ellipse cx="22" cy="22" rx="16" ry="5" stroke="rgba(255,255,255,0.6)" stroke-width="1.8" fill="none" transform="rotate(-30 22 22)"/>
+            <ellipse cx="22" cy="22" rx="16" ry="6.5" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" fill="none" transform="rotate(40 22 22)"/>
+            <ellipse cx="22" cy="22" rx="16" ry="7" stroke="rgba(255,255,255,0.18)" stroke-width="1.5" fill="none" transform="rotate(90 22 22)"/>
+          </svg>
+        </div>
+        <div>
+          <span class="wm wm-lg wm-white">unify</span>
+        </div>
+      </div>
+      <!-- Light Sunset lockup -->
+      <div class="cell cell-light-sunset">
+        <span class="cell-tag" style="color: #c0444a;">Light</span>
+        <div class="lockup">
+          <div class="mark g2">
+            <svg viewBox="0 0 44 44" fill="none">
+              <circle cx="22" cy="22" r="7" fill="url(#energy-ball)" filter="url(#glow)"/>
+              <circle cx="22" cy="22" r="4" fill="white"/>
+              <ellipse cx="22" cy="22" rx="16" ry="5" stroke="rgba(255,255,255,0.6)" stroke-width="1.8" fill="none" transform="rotate(-30 22 22)"/>
+              <ellipse cx="22" cy="22" rx="16" ry="6.5" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" fill="none" transform="rotate(40 22 22)"/>
+              <ellipse cx="22" cy="22" rx="16" ry="7" stroke="rgba(255,255,255,0.18)" stroke-width="1.5" fill="none" transform="rotate(90 22 22)"/>
+            </svg>
+          </div>
+          <div>
+            <div class="wm wm-sm wm-dark">unify</div>
+            <div class="tag tag-muted-light">Labs</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SIZE COMPARISON ==================== -->
+  <div class="sizes-section">
+    <div class="sizes-label">Size Comparison — 80px / 44px / 32px</div>
+    <div class="sizes-grid">
+      <div class="sizes-cell">
+        <span class="size-label">Orbital Rings</span>
+        <div style="display:flex; align-items:center; gap:20px;">
+          <div class="mark mark-80 g1" style="display:flex;align-items:center;justify-content:center;">
+            <svg viewBox="0 0 44 44" fill="none">
+              <circle cx="22" cy="22" r="7" fill="url(#energy-ball)" filter="url(#glow)"/>
+              <circle cx="22" cy="22" r="4" fill="white"/>
+              <ellipse cx="22" cy="22" rx="16" ry="5" stroke="rgba(255,255,255,0.6)" stroke-width="1.8" fill="none" transform="rotate(-30 22 22)"/>
+              <ellipse cx="22" cy="22" rx="16" ry="6.5" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" fill="none" transform="rotate(40 22 22)"/>
+              <ellipse cx="22" cy="22" rx="16" ry="7" stroke="rgba(255,255,255,0.18)" stroke-width="1.5" fill="none" transform="rotate(90 22 22)"/>
+            </svg>
+          </div>
+          <div class="mark mark-44 g1" style="display:flex;align-items:center;justify-content:center;">
+            <svg viewBox="0 0 44 44" fill="none">
+              <circle cx="22" cy="22" r="7" fill="url(#energy-ball)" filter="url(#glow)"/>
+              <circle cx="22" cy="22" r="4" fill="white"/>
+              <ellipse cx="22" cy="22" rx="16" ry="5" stroke="rgba(255,255,255,0.6)" stroke-width="1.8" fill="none" transform="rotate(-30 22 22)"/>
+              <ellipse cx="22" cy="22" rx="16" ry="6.5" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" fill="none" transform="rotate(40 22 22)"/>
+              <ellipse cx="22" cy="22" rx="16" ry="7" stroke="rgba(255,255,255,0.18)" stroke-width="1.5" fill="none" transform="rotate(90 22 22)"/>
+            </svg>
+          </div>
+          <div class="mark mark-32 g1" style="display:flex;align-items:center;justify-content:center;">
+            <svg viewBox="0 0 44 44" fill="none">
+              <circle cx="22" cy="22" r="7" fill="url(#energy-ball)" filter="url(#glow)"/>
+              <circle cx="22" cy="22" r="4" fill="white"/>
+              <ellipse cx="22" cy="22" rx="16" ry="5" stroke="rgba(255,255,255,0.6)" stroke-width="1.8" fill="none" transform="rotate(-30 22 22)"/>
+              <ellipse cx="22" cy="22" rx="16" ry="6.5" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" fill="none" transform="rotate(40 22 22)"/>
+              <ellipse cx="22" cy="22" rx="16" ry="7" stroke="rgba(255,255,255,0.18)" stroke-width="1.5" fill="none" transform="rotate(90 22 22)"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
