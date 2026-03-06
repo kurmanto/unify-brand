@@ -1045,7 +1045,6 @@ function createScene(container, palette) {
       uGalaxyCore: { value: palette.galaxyCore },
       uGalaxyArm1: { value: palette.galaxyArm1 },
       uGalaxyArm2: { value: palette.galaxyArm2 },
-      uMouse: { value: new THREE.Vector2(0, 0) },
       uGalaxyCenter: { value: new THREE.Vector2(-0.15, 0.1) },
     },
     vertexShader: `
@@ -1061,62 +1060,57 @@ function createScene(container, palette) {
       uniform vec3 uGalaxyCore;
       uniform vec3 uGalaxyArm1;
       uniform vec3 uGalaxyArm2;
-      uniform vec2 uMouse;
       uniform vec2 uGalaxyCenter;
       varying vec2 vUv;
 
       void main() {
-        // Galaxy center offset so atom sits in one arm
         vec2 center = uGalaxyCenter;
-        vec2 p = vUv - 0.5 - center + uMouse * 0.05;
-
-        // Scale so galaxy fills the visible viewport nicely
+        vec2 p = vUv - 0.5 - center;
         p *= 1.5;
 
         float r = length(p);
         float theta = atan(p.y, p.x);
+        theta += uTime * 0.005; // slower rotation
 
-        // Very slow rotation
-        theta += uTime * 0.01;
+        // --- Warped coordinates for organic feel ---
+        float warp1 = snoise(vec3(p * 1.5, uTime * 0.004)) * 0.5;
+        float warp2 = snoise(vec3(p * 3.0 + 7.0, uTime * 0.006)) * 0.25;
+        float warpedTheta = theta + warp1 + warp2;
 
-        // Spiral arms (2 major arms, logarithmic)
-        float spiralTightness = 0.5;
-        float armAngle = theta - log(r + 0.001) / spiralTightness;
-        float armPattern = cos(armAngle * 2.0); // 2 arms
-        armPattern = smoothstep(-0.2, 1.0, armPattern); // smooth wide arms
+        // --- 3 asymmetric arms (different phases, widths, strengths) ---
+        float arm1 = cos(warpedTheta * 2.0 - log(r + 0.001) * 2.0);
+        float arm2 = cos(warpedTheta * 2.0 - log(r + 0.001) * 2.0 + 2.4) * 0.7;
+        float arm3 = cos(warpedTheta * 2.0 - log(r + 0.001) * 2.0 + 4.2) * 0.4;
+        float arms = max(max(arm1, arm2), arm3);
+        arms = smoothstep(-0.3, 0.8, arms); // wider, softer falloff
 
-        // Fade out spiral structure at the dead center only
-        // Hides the artificial tight-winding vortex convergence point
-        float centerFade = smoothstep(0.04, 0.15, r);
-        armPattern *= centerFade;
+        // --- Fade center convergence ---
+        arms *= smoothstep(0.04, 0.18, r);
 
-        // Warp the arms with large-scale noise so they read as gas clouds
-        float warp = snoise(vec3(p * 1.8 + 5.0, uTime * 0.006)) * 0.35;
-        float armWarped = cos((armAngle + warp) * 2.0);
-        armWarped = smoothstep(-0.2, 1.0, armWarped) * centerFade;
-        armPattern = mix(armPattern, armWarped, 0.4);
+        // --- FBM detail wisps (independent of spiral) ---
+        float fbm = snoise(vec3(p * 4.0, uTime * 0.003)) * 0.5
+                   + snoise(vec3(p * 8.0 + 3.0, uTime * 0.005)) * 0.25
+                   + snoise(vec3(p * 16.0 + 7.0, uTime * 0.007)) * 0.125;
+        float wisps = smoothstep(-0.2, 0.6, fbm) * 0.4;
 
-        // Noise breakup — organic edges
-        float n = snoise(vec3(p * 3.0, uTime * 0.008));
-        armPattern *= 0.7 + 0.3 * n;
+        // --- Noise breakup + dust lanes ---
+        float breakup = snoise(vec3(p * 5.0 + 15.0, uTime * 0.004));
+        arms *= 0.6 + 0.4 * breakup;
 
-        // Soft dust lanes (gentle variation, not hard cutoffs)
-        float dust = snoise(vec3(p * 4.0 + 10.0, uTime * 0.005));
-        armPattern *= 0.7 + 0.3 * smoothstep(-0.5, 0.5, dust);
+        // --- Irregular core (noise-warped, slightly elliptical) ---
+        float coreWarp = snoise(vec3(p * 2.0, uTime * 0.01)) * 0.08;
+        vec2 coreP = p + coreWarp;
+        coreP.x *= 1.3; // slight ellipticity
+        float core = exp(-dot(coreP, coreP) * 5.0) * 0.8;
 
-        float armFinal = armPattern;
-
-        // Core glow — soft diffuse center (no spiral structure)
-        float core = exp(-r * r * 4.0);
-
-        // Radial falloff — galaxy fades smoothly at edges
+        // --- Radial falloff ---
         float falloff = smoothstep(0.9, 0.05, r);
 
-        // Inter-arm background glow (faint diffuse light)
-        float diffuse = exp(-r * r * 1.5) * 0.1;
+        // --- Diffuse inter-arm glow ---
+        float diffuse = exp(-r * r * 1.5) * 0.08;
 
-        // Combine: clouds clearly visible, core soft
-        float brightness = (armFinal * 0.18 + core * 0.14 + diffuse) * falloff;
+        // --- Combine ---
+        float brightness = (arms * 0.14 + wisps * 0.06 + core * 0.12 + diffuse) * falloff;
 
         // Color gradient: core → arm1 → arm2 by radius
         vec3 color = mix(uGalaxyCore * 1.3, uGalaxyArm1, smoothstep(0.0, 0.25, r));
@@ -1356,9 +1350,10 @@ function animate() {
       }
     }
 
-    // Galaxy shader — update time and mouse uniforms
+    // Galaxy shader — update time, move quad for subtle parallax
     s.galaxyMat.uniforms.uTime.value = t;
-    s.galaxyMat.uniforms.uMouse.value.set(mouse.x, mouse.y);
+    s.galaxyQuad.position.x = mouse.x * 0.15;
+    s.galaxyQuad.position.y = mouse.y * 0.15;
 
     // Shooting stars
     for (const m of s.meteors) {
