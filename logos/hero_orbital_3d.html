@@ -873,10 +873,10 @@ function createScene(container, palette) {
           float d = length(gl_PointCoord - vec2(0.5));
           if (d > 0.5) discard;
           float falloff = 1.0 - smoothstep(0.0, 0.5, d);
-          // 4Hz gentle flicker via hash noise
-          float flicker = 0.93 + 0.07 * (hash(vPhase + floor(uTime * 4.0)) * 2.0 - 1.0);
-          float alpha = flicker * falloff * 0.9;
-          gl_FragColor = vec4(vColor * flicker * 1.3, alpha);
+          // Slow breathing — stars gently pulse
+          float breath = 0.75 + 0.25 * sin(uTime * 0.3 + vPhase * 6.2831853);
+          float alpha = breath * falloff * 1.1;
+          gl_FragColor = vec4(vColor * breath * 1.5, alpha);
         }
       `,
       vertexColors: true,
@@ -955,17 +955,16 @@ function createScene(container, palette) {
           if (d > 0.5) discard;
           float falloff = 1.0 - smoothstep(0.0, 0.5, d);
 
-          // 3-frequency scintillation — slowed for gentler twinkle
-          float t1 = sin(uTime * 0.6 + vPhase * 6.2831853);
-          float t2 = sin(uTime * 1.1 + vPhase * 4.1234567);
-          float t3 = sin(uTime * 1.7 + vPhase * 2.7654321);
-          float twinkle = 0.8 + 0.2 * ((t1 + t2 + t3) / 3.0);
+          // Slow breathing — stars gently pulse
+          float t1 = sin(uTime * 0.3 + vPhase * 6.2831853);
+          float t2 = sin(uTime * 0.5 + vPhase * 4.1234567);
+          float twinkle = 0.7 + 0.3 * ((t1 + t2) / 2.0 * 0.5 + 0.5);
 
-          // Brightness-scaled twinkle amount (brighter stars twinkle more visibly)
-          twinkle = mix(0.90, twinkle, 0.3 + vBrightness * 0.7);
+          // Brightness-scaled twinkle amount
+          twinkle = mix(0.8, twinkle, 0.3 + vBrightness * 0.7);
 
-          // Chromatic shimmer — subtle red/blue shift on brighter stars
-          float chromaShift = 0.02 * vBrightness * sin(uTime * 1.2 + vPhase);
+          // Minimal chromatic shimmer
+          float chromaShift = 0.01 * vBrightness * sin(uTime * 0.3 + vPhase);
           vec3 color = vColor;
           color.r += chromaShift;
           color.b -= chromaShift;
@@ -1064,15 +1063,13 @@ function createScene(container, palette) {
           float halo = 0.02 / (d * d + 0.01);        // soft extended glow
           float shape = core + halo * vBrightness;
 
-          // 4-frequency scintillation — slowed for gentler twinkle
-          float t1 = sin(uTime * 0.6 + vPhase * 6.2831853);
-          float t2 = sin(uTime * 1.1 + vPhase * 4.1234567);
-          float t3 = sin(uTime * 1.7 + vPhase * 2.7654321);
-          float t4 = sin(uTime * 2.8 + vPhase * 1.8765432);
-          float twinkle = 0.75 + 0.25 * ((t1 + t2 + t3 + t4) / 4.0);
+          // Slow breathing — stars gently pulse
+          float t1 = sin(uTime * 0.3 + vPhase * 6.2831853);
+          float t2 = sin(uTime * 0.5 + vPhase * 4.1234567);
+          float twinkle = 0.7 + 0.3 * ((t1 + t2) / 2.0 * 0.5 + 0.5);
 
-          // Chromatic shimmer (±0.04 on brighter stars)
-          float chromaShift = 0.04 * vBrightness * sin(uTime * 1.4 + vPhase);
+          // Minimal chromatic shimmer
+          float chromaShift = 0.02 * vBrightness * sin(uTime * 0.3 + vPhase);
           vec3 color = vColor;
           color.r += chromaShift;
           color.b -= chromaShift;
@@ -1920,7 +1917,8 @@ function animate() {
     for (let li = 0; li < s.starLayers.length; li++) {
       const layer = s.starLayers[li];
       layer.mat.uniforms.uTime.value = t % 1000.0;
-      layer.points.rotation.y = t * layer.points.userData.rotSpeed;
+      // rotation disabled — sub-pixel movement causes visible flickering
+      // layer.points.rotation.y = t * layer.points.userData.rotSpeed;
       // Depth-based mouse parallax (far layers move less)
       const depth = (li + 1) / s.starLayers.length;
       layer.points.position.x = mouse.x * 0.05 * depth;
