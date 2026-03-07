@@ -173,22 +173,13 @@
   </defs>
 </svg>
 
-<button class="palette-toggle" id="palette-toggle">Switch to Sunset</button>
+<button class="palette-toggle" id="palette-toggle">Next: Warm Sunset</button>
 
-<!-- Hero — Deep Green -->
-<section class="hero" id="hero-green">
-  <div class="palette-label">Deep Green</div>
+<!-- Hero — Dynamic Palette -->
+<section class="hero" id="hero">
+  <div class="palette-label" id="palette-label">Deep Green</div>
   <div class="overlay">
-    <div class="overlay-title" style="text-shadow: 0 0 60px rgba(42,107,69, 0.3);">unify</div>
-    <div class="overlay-tag">Labs</div>
-  </div>
-</section>
-
-<!-- Hero — Warm Sunset -->
-<section class="hero" id="hero-sunset" style="display:none;">
-  <div class="palette-label">Warm Sunset</div>
-  <div class="overlay">
-    <div class="overlay-title" style="text-shadow: 0 0 60px rgba(224,122,75, 0.3);">unify</div>
+    <div class="overlay-title" id="overlay-title" style="text-shadow: 0 0 60px rgba(42,107,69, 0.3);">unify</div>
     <div class="overlay-tag">Labs</div>
   </div>
 </section>
@@ -404,6 +395,8 @@ const palettes = {
     nebulaVivid2: new THREE.Color(0.10, 0.70, 0.95),  // Vivid cerulean-blue
     nebulaVivid3: new THREE.Color(0.20, 0.95, 0.40),  // Neon emerald-chartreuse
     nebulaVivid4: new THREE.Color(0.02, 0.45, 0.55),  // Deep ocean teal (dust lanes)
+    bgColor: 0x060606,
+    textShadow: 'rgba(42,107,69, 0.3)',
   },
   warmSunset: {
     color0: new THREE.Vector3(1.0, 0.95, 0.85),       // Warm cream — hot core
@@ -426,7 +419,160 @@ const palettes = {
     nebulaVivid2: new THREE.Color(0.85, 0.10, 0.60),  // Deep rose-magenta
     nebulaVivid3: new THREE.Color(1.00, 0.65, 0.10),  // Amber-gold emission
     nebulaVivid4: new THREE.Color(0.30, 0.05, 0.15),  // Dark wine-burgundy (dust lanes)
+    bgColor: 0x060606,
+    textShadow: 'rgba(224,122,75, 0.3)',
   },
+  aurora: {
+    color0: new THREE.Vector3(0.95, 1.0, 0.98),       // Frosty white — hot core
+    color1: new THREE.Vector3(0.2, 0.95, 0.8),        // Electric cyan — bright accent
+    color2: new THREE.Vector3(0.1, 0.75, 0.55),       // Emerald cyan — primary
+    color3: new THREE.Vector3(0.6, 0.2, 0.7),         // Aurora pink/magenta — warm accent
+    color4: new THREE.Vector3(0.04, 0.2, 0.35),       // Arctic deep — dark depth
+    glowColor:    new THREE.Color(0.2, 0.9, 0.7),
+    sparkColor:   new THREE.Color(0.3, 1.0, 0.85),
+    ringColor:    new THREE.Vector3(0.3, 1.0, 0.8),
+    ambientColor: 0x66ccbb,
+    nebulaColor1: new THREE.Color(0.05, 0.4, 0.35),
+    nebulaColor2: new THREE.Color(0.3, 0.1, 0.4),
+    starTint:     new THREE.Color(0.6, 1.0, 0.9),
+    meteorColor:  new THREE.Color(0.3, 1.0, 0.8),
+    galaxyCore:   new THREE.Color(0.1, 0.5, 0.4),
+    galaxyArm1:   new THREE.Color(0.05, 0.3, 0.35),
+    galaxyArm2:   new THREE.Color(0.2, 0.1, 0.35),
+    nebulaVivid1: new THREE.Color(0.0, 0.95, 0.75),   // Electric green-cyan
+    nebulaVivid2: new THREE.Color(0.15, 0.70, 1.0),   // Ice blue
+    nebulaVivid3: new THREE.Color(0.7, 0.15, 0.85),   // Aurora magenta
+    nebulaVivid4: new THREE.Color(0.03, 0.15, 0.25),  // Arctic shadow
+    bgColor: 0x060606,
+    textShadow: 'rgba(32, 230, 179, 0.3)',
+  },
+  volcanic: {
+    color0: new THREE.Vector3(1.0, 0.95, 0.7),        // Solar white-yellow — hot core
+    color1: new THREE.Vector3(1.0, 0.7, 0.15),        // Solar yellow — bright accent
+    color2: new THREE.Vector3(0.95, 0.35, 0.08),      // Magma orange — primary
+    color3: new THREE.Vector3(0.8, 0.12, 0.05),       // Lava red — warm accent
+    color4: new THREE.Vector3(0.35, 0.05, 0.02),      // Cooled magma — dark depth
+    glowColor:    new THREE.Color(0.95, 0.4, 0.1),
+    sparkColor:   new THREE.Color(1.0, 0.6, 0.15),
+    ringColor:    new THREE.Vector3(1.0, 0.55, 0.2),
+    ambientColor: 0xcc6633,
+    nebulaColor1: new THREE.Color(0.5, 0.1, 0.02),
+    nebulaColor2: new THREE.Color(0.3, 0.05, 0.01),
+    starTint:     new THREE.Color(1.0, 0.8, 0.5),
+    meteorColor:  new THREE.Color(1.0, 0.5, 0.15),
+    galaxyCore:   new THREE.Color(0.5, 0.2, 0.05),
+    galaxyArm1:   new THREE.Color(0.4, 0.1, 0.02),
+    galaxyArm2:   new THREE.Color(0.25, 0.05, 0.02),
+    nebulaVivid1: new THREE.Color(1.0, 0.35, 0.0),    // Pure magma
+    nebulaVivid2: new THREE.Color(0.9, 0.15, 0.0),    // Deep lava red
+    nebulaVivid3: new THREE.Color(1.0, 0.75, 0.0),    // Solar yellow
+    nebulaVivid4: new THREE.Color(0.2, 0.03, 0.01),   // Volcanic shadow
+    bgColor: 0x060606,
+    textShadow: 'rgba(242, 89, 20, 0.3)',
+  },
+  reef: {
+    color0: new THREE.Vector3(1.0, 0.95, 0.92),       // Pearl white — hot core
+    color1: new THREE.Vector3(1.0, 0.55, 0.35),       // Living coral — bright accent
+    color2: new THREE.Vector3(0.95, 0.4, 0.25),       // Coral — primary
+    color3: new THREE.Vector3(0.1, 0.8, 0.75),        // Bioluminescent cyan — cool accent
+    color4: new THREE.Vector3(0.05, 0.3, 0.4),        // Deep ocean — dark depth
+    glowColor:    new THREE.Color(0.95, 0.45, 0.3),
+    sparkColor:   new THREE.Color(1.0, 0.6, 0.4),
+    ringColor:    new THREE.Vector3(0.2, 0.9, 0.8),
+    ambientColor: 0xcc8866,
+    nebulaColor1: new THREE.Color(0.4, 0.15, 0.1),
+    nebulaColor2: new THREE.Color(0.05, 0.3, 0.35),
+    starTint:     new THREE.Color(0.9, 0.85, 0.9),
+    meteorColor:  new THREE.Color(0.2, 0.9, 0.8),
+    galaxyCore:   new THREE.Color(0.4, 0.2, 0.15),
+    galaxyArm1:   new THREE.Color(0.05, 0.3, 0.3),
+    galaxyArm2:   new THREE.Color(0.3, 0.1, 0.15),
+    nebulaVivid1: new THREE.Color(1.0, 0.4, 0.3),     // Living coral emission
+    nebulaVivid2: new THREE.Color(0.0, 0.9, 0.8),     // Bioluminescent cyan
+    nebulaVivid3: new THREE.Color(1.0, 0.65, 0.2),    // Tangerine glow
+    nebulaVivid4: new THREE.Color(0.03, 0.15, 0.2),   // Abyss shadow
+    bgColor: 0x060606,
+    textShadow: 'rgba(255, 102, 64, 0.3)',
+  },
+  royale: {
+    color0: new THREE.Vector3(1.0, 0.92, 0.95),       // Rose white — hot core
+    color1: new THREE.Vector3(0.9, 0.5, 0.8),         // Rose pink — bright accent
+    color2: new THREE.Vector3(0.55, 0.15, 0.65),      // Nebula violet — primary
+    color3: new THREE.Vector3(0.9, 0.2, 0.55),        // Hot magenta — warm accent
+    color4: new THREE.Vector3(0.2, 0.02, 0.25),       // Void purple — dark depth
+    glowColor:    new THREE.Color(0.7, 0.2, 0.6),
+    sparkColor:   new THREE.Color(0.9, 0.4, 0.8),
+    ringColor:    new THREE.Vector3(0.8, 0.4, 0.9),
+    ambientColor: 0x9966aa,
+    nebulaColor1: new THREE.Color(0.3, 0.05, 0.35),
+    nebulaColor2: new THREE.Color(0.4, 0.1, 0.25),
+    starTint:     new THREE.Color(0.9, 0.8, 1.0),
+    meteorColor:  new THREE.Color(0.8, 0.4, 0.9),
+    galaxyCore:   new THREE.Color(0.35, 0.1, 0.4),
+    galaxyArm1:   new THREE.Color(0.25, 0.05, 0.3),
+    galaxyArm2:   new THREE.Color(0.4, 0.08, 0.2),
+    nebulaVivid1: new THREE.Color(0.7, 0.1, 0.9),     // Rich violet
+    nebulaVivid2: new THREE.Color(0.95, 0.15, 0.6),   // Hot magenta
+    nebulaVivid3: new THREE.Color(0.85, 0.6, 0.5),    // Rose gold
+    nebulaVivid4: new THREE.Color(0.12, 0.02, 0.15),  // Void shadow
+    bgColor: 0x060606,
+    textShadow: 'rgba(140, 40, 165, 0.3)',
+  },
+  gold: {
+    color0: new THREE.Vector3(1.0, 0.98, 0.88),       // Champagne white — hot core
+    color1: new THREE.Vector3(1.0, 0.85, 0.4),        // Champagne flash — bright accent
+    color2: new THREE.Vector3(0.85, 0.65, 0.15),      // Celestial gold — primary
+    color3: new THREE.Vector3(0.9, 0.5, 0.3),         // Amber rose — warm accent
+    color4: new THREE.Vector3(0.4, 0.2, 0.05),        // Dark amber — dark depth
+    glowColor:    new THREE.Color(0.9, 0.7, 0.25),
+    sparkColor:   new THREE.Color(1.0, 0.85, 0.35),
+    ringColor:    new THREE.Vector3(1.0, 0.8, 0.35),
+    ambientColor: 0xccaa55,
+    nebulaColor1: new THREE.Color(0.4, 0.25, 0.05),
+    nebulaColor2: new THREE.Color(0.3, 0.15, 0.05),
+    starTint:     new THREE.Color(1.0, 0.92, 0.7),
+    meteorColor:  new THREE.Color(1.0, 0.8, 0.3),
+    galaxyCore:   new THREE.Color(0.45, 0.3, 0.1),
+    galaxyArm1:   new THREE.Color(0.35, 0.2, 0.05),
+    galaxyArm2:   new THREE.Color(0.25, 0.12, 0.05),
+    nebulaVivid1: new THREE.Color(1.0, 0.8, 0.1),     // Liquid gold
+    nebulaVivid2: new THREE.Color(0.95, 0.6, 0.15),   // Amber flame
+    nebulaVivid3: new THREE.Color(1.0, 0.9, 0.5),     // Champagne burst
+    nebulaVivid4: new THREE.Color(0.18, 0.1, 0.02),   // Sienna shadow
+    bgColor: 0x060606,
+    textShadow: 'rgba(216, 166, 38, 0.3)',
+  },
+  synthwave: {
+    color0: new THREE.Vector3(1.0, 0.95, 1.0),        // White-pink — hot core
+    color1: new THREE.Vector3(1.0, 0.2, 0.6),         // Hot pink — primary accent
+    color2: new THREE.Vector3(0.85, 0.1, 0.55),       // Synthwave pink — primary
+    color3: new THREE.Vector3(0.0, 0.9, 0.95),        // Neon cyan — cool accent
+    color4: new THREE.Vector3(0.05, 0.05, 0.2),       // Cyber deep — dark depth
+    glowColor:    new THREE.Color(0.9, 0.15, 0.5),
+    sparkColor:   new THREE.Color(1.0, 0.3, 0.7),
+    ringColor:    new THREE.Vector3(0.0, 0.95, 1.0),
+    ambientColor: 0xaa44aa,
+    nebulaColor1: new THREE.Color(0.4, 0.02, 0.25),
+    nebulaColor2: new THREE.Color(0.02, 0.2, 0.35),
+    starTint:     new THREE.Color(0.9, 0.7, 1.0),
+    meteorColor:  new THREE.Color(0.0, 0.95, 1.0),
+    galaxyCore:   new THREE.Color(0.4, 0.05, 0.3),
+    galaxyArm1:   new THREE.Color(0.02, 0.2, 0.35),
+    galaxyArm2:   new THREE.Color(0.3, 0.02, 0.2),
+    nebulaVivid1: new THREE.Color(1.0, 0.1, 0.5),     // Hot pink neon
+    nebulaVivid2: new THREE.Color(0.0, 0.9, 1.0),     // Neon cyan
+    nebulaVivid3: new THREE.Color(1.0, 0.95, 0.1),    // Laser yellow
+    nebulaVivid4: new THREE.Color(0.05, 0.03, 0.12),  // Cyber void shadow
+    bgColor: 0x060606,
+    textShadow: 'rgba(217, 38, 128, 0.3)',
+  },
+};
+
+const paletteOrder = ['deepGreen', 'warmSunset', 'aurora', 'volcanic', 'reef', 'royale', 'gold', 'synthwave'];
+const paletteNames = {
+  deepGreen: 'Deep Green', warmSunset: 'Warm Sunset', aurora: 'Aurora Borealis',
+  volcanic: 'Volcanic Core', reef: 'Bioluminescent Reef', royale: 'Nebula Royale',
+  gold: 'Celestial Gold', synthwave: 'Neon Synthwave',
 };
 
 // ─── Reusable Scene Factory ──────────────────────────────────────────
@@ -498,11 +644,11 @@ function createScene(container, palette) {
   const energyMat = new THREE.ShaderMaterial({
     uniforms: {
       uTime: { value: 0 },
-      uColor0: { value: palette.color0 },
-      uColor1: { value: palette.color1 },
-      uColor2: { value: palette.color2 },
-      uColor3: { value: palette.color3 },
-      uColor4: { value: palette.color4 },
+      uColor0: { value: palette.color0.clone() },
+      uColor1: { value: palette.color1.clone() },
+      uColor2: { value: palette.color2.clone() },
+      uColor3: { value: palette.color3.clone() },
+      uColor4: { value: palette.color4.clone() },
     },
     vertexShader: `
       ${noiseGLSL}
@@ -589,7 +735,7 @@ function createScene(container, palette) {
   const outerGlow = new THREE.Mesh(
     new THREE.SphereGeometry(0.5, 32, 32),
     new THREE.MeshBasicMaterial({
-      color: palette.glowColor,
+      color: palette.glowColor.clone(),
       transparent: true,
       opacity: 0.04,
       blending: THREE.AdditiveBlending,
@@ -696,7 +842,7 @@ function createScene(container, palette) {
       uniforms: {
         uTime: { value: 0 },
         uBaseOpacity: { value: def.baseOpacity },
-        uRingColor: { value: palette.ringColor },
+        uRingColor: { value: palette.ringColor.clone() },
         uPhase: { value: def.phase },
       },
       vertexShader: `
@@ -1227,9 +1373,9 @@ function createScene(container, palette) {
   const galaxyMat = new THREE.ShaderMaterial({
     uniforms: {
       uTime: { value: 0 },
-      uGalaxyCore: { value: palette.galaxyCore },
-      uGalaxyArm1: { value: palette.galaxyArm1 },
-      uGalaxyArm2: { value: palette.galaxyArm2 },
+      uGalaxyCore: { value: palette.galaxyCore.clone() },
+      uGalaxyArm1: { value: palette.galaxyArm1.clone() },
+      uGalaxyArm2: { value: palette.galaxyArm2.clone() },
       uGalaxyCenter: { value: new THREE.Vector2(-0.15, 0.1) },
     },
     vertexShader: `
@@ -1429,7 +1575,7 @@ function createScene(container, palette) {
     uniforms: {
       uTime: { value: 0 },
       uGlowColor: { value: new THREE.Vector3(palette.glowColor.r, palette.glowColor.g, palette.glowColor.b) },
-      uRingColor: { value: palette.ringColor },
+      uRingColor: { value: palette.ringColor.clone() },
     },
     vertexShader: `
       varying vec2 vUv;
@@ -1564,7 +1710,7 @@ function createScene(container, palette) {
     const metePos = new Float32Array(6); // 2 vertices × 3
     meteGeo.setAttribute('position', new THREE.BufferAttribute(metePos, 3));
     const meteMat = new THREE.LineBasicMaterial({
-      color: palette.meteorColor,
+      color: palette.meteorColor.clone(),
       transparent: true,
       opacity: 0,
       blending: THREE.AdditiveBlending,
@@ -1770,7 +1916,7 @@ function createScene(container, palette) {
   // Return everything needed for animation
   return {
     scene, camera, renderer, composer,
-    atomGroup, energyMat,
+    atomGroup, energyMat, outerGlow, sparkGeo,
     sparkPoints, sparkPositions, sparkVelocities, sparkLifetimes, sparkMaxLifetimes, sparkColors, sparkSizes, sc,
     ringMeshes, ringMaterials,
     orbitParticleGroups,
@@ -1784,6 +1930,136 @@ function createScene(container, palette) {
   };
 }
 
+// ─── switchPalette — dynamically update all color-dependent objects ──
+function switchPalette(s, palette) {
+  // 1. Energy sphere uniforms
+  s.energyMat.uniforms.uColor0.value.copy(palette.color0);
+  s.energyMat.uniforms.uColor1.value.copy(palette.color1);
+  s.energyMat.uniforms.uColor2.value.copy(palette.color2);
+  s.energyMat.uniforms.uColor3.value.copy(palette.color3);
+  s.energyMat.uniforms.uColor4.value.copy(palette.color4);
+
+  // 2. Outer glow halo
+  s.outerGlow.material.color.copy(palette.glowColor);
+
+  // 3. Spark particles — update color reference
+  s.sc = palette.sparkColor;
+  const sparkColorAttr = s.sparkGeo.attributes.color;
+  for (let i = 0; i < sparkColorAttr.count; i++) {
+    const brightness = 0.8 + Math.random() * 1.0;
+    sparkColorAttr.array[i * 3]     = s.sc.r * brightness;
+    sparkColorAttr.array[i * 3 + 1] = s.sc.g * brightness;
+    sparkColorAttr.array[i * 3 + 2] = s.sc.b * brightness;
+  }
+  sparkColorAttr.needsUpdate = true;
+
+  // 4. Ring materials
+  for (const rm of s.ringMaterials) {
+    rm.uniforms.uRingColor.value.copy(palette.ringColor);
+  }
+
+  // 5. Star layers — retint with new palette tint
+  // Background stars (6000, tint 0.2, brightness baked into color)
+  {
+    const colors = s.starLayers[0].points.geometry.attributes.color.array;
+    const count = colors.length / 3;
+    for (let i = 0; i < count; i++) {
+      const brightness = powerLawBrightness(3.5);
+      const bScale = 0.4 + brightness * 0.6;
+      const temp = randomStarTemperature();
+      const bb = blackbodyColor(temp);
+      const tinted = tintStarColor(bb, palette.starTint, 0.2);
+      colors[i * 3]     = tinted[0] * bScale;
+      colors[i * 3 + 1] = tinted[1] * bScale;
+      colors[i * 3 + 2] = tinted[2] * bScale;
+    }
+    s.starLayers[0].points.geometry.attributes.color.needsUpdate = true;
+  }
+  // Mid-field stars (2500, tint 0.15, brightness in separate attribute)
+  {
+    const colors = s.starLayers[1].points.geometry.attributes.color.array;
+    const count = colors.length / 3;
+    for (let i = 0; i < count; i++) {
+      const temp = randomStarTemperature();
+      const bb = blackbodyColor(temp);
+      const tinted = tintStarColor(bb, palette.starTint, 0.15);
+      colors[i * 3]     = tinted[0];
+      colors[i * 3 + 1] = tinted[1];
+      colors[i * 3 + 2] = tinted[2];
+    }
+    s.starLayers[1].points.geometry.attributes.color.needsUpdate = true;
+  }
+  // Feature stars (200, tint 0.12, brightness in separate attribute)
+  {
+    const colors = s.starLayers[2].points.geometry.attributes.color.array;
+    const count = colors.length / 3;
+    for (let i = 0; i < count; i++) {
+      const temp = randomStarTemperature();
+      const bb = blackbodyColor(temp);
+      const tinted = tintStarColor(bb, palette.starTint, 0.12);
+      colors[i * 3]     = tinted[0];
+      colors[i * 3 + 1] = tinted[1];
+      colors[i * 3 + 2] = tinted[2];
+    }
+    s.starLayers[2].points.geometry.attributes.color.needsUpdate = true;
+  }
+
+  // 6. Background galaxies
+  {
+    const colors = s.bgGalaxies.points.geometry.attributes.color.array;
+    const count = colors.length / 3;
+    const gc = palette.galaxyCore, ga1 = palette.galaxyArm1, ga2 = palette.galaxyArm2;
+    for (let i = 0; i < count; i++) {
+      const mix = Math.random();
+      colors[i * 3]     = gc.r * (1 - mix) + ga1.r * mix;
+      colors[i * 3 + 1] = gc.g * (1 - mix) + ga1.g * mix;
+      colors[i * 3 + 2] = gc.b * (1 - mix) + ga2.b * mix;
+    }
+    s.bgGalaxies.points.geometry.attributes.color.needsUpdate = true;
+  }
+
+  // 7. Galaxy shader uniforms
+  s.galaxyMat.uniforms.uGalaxyCore.value.copy(palette.galaxyCore);
+  s.galaxyMat.uniforms.uGalaxyArm1.value.copy(palette.galaxyArm1);
+  s.galaxyMat.uniforms.uGalaxyArm2.value.copy(palette.galaxyArm2);
+
+  // 8. Nebula cloud uniforms
+  s.nebulaCloud.mat.uniforms.uVivid1.value.set(palette.nebulaVivid1.r, palette.nebulaVivid1.g, palette.nebulaVivid1.b);
+  s.nebulaCloud.mat.uniforms.uVivid2.value.set(palette.nebulaVivid2.r, palette.nebulaVivid2.g, palette.nebulaVivid2.b);
+  s.nebulaCloud.mat.uniforms.uVivid3.value.set(palette.nebulaVivid3.r, palette.nebulaVivid3.g, palette.nebulaVivid3.b);
+  s.nebulaCloud.mat.uniforms.uVivid4.value.set(palette.nebulaVivid4.r, palette.nebulaVivid4.g, palette.nebulaVivid4.b);
+
+  // 9. Pulse wave uniforms
+  s.pulseMat.uniforms.uGlowColor.value.set(palette.glowColor.r, palette.glowColor.g, palette.glowColor.b);
+  s.pulseMat.uniforms.uRingColor.value.copy(palette.ringColor);
+
+  // 10. Cosmic dust — retint
+  {
+    const colors = s.cosmicDust.points.geometry.attributes.color.array;
+    const count = colors.length / 3;
+    const tint = palette.starTint;
+    for (let i = 0; i < count; i++) {
+      colors[i * 3]     = tint.r * (0.6 + Math.random() * 0.4);
+      colors[i * 3 + 1] = tint.g * (0.6 + Math.random() * 0.4);
+      colors[i * 3 + 2] = tint.b * (0.6 + Math.random() * 0.4);
+    }
+    s.cosmicDust.points.geometry.attributes.color.needsUpdate = true;
+  }
+
+  // 11. Meteor materials
+  for (const m of s.meteors) {
+    m.mat.color.copy(palette.meteorColor);
+  }
+  s.mc = palette.meteorColor;
+
+  // 12. Background clear color
+  s.renderer.setClearColor(palette.bgColor);
+
+  // 13. Overlay text-shadow + palette label
+  const overlayTitle = document.getElementById('overlay-title');
+  if (overlayTitle) overlayTitle.style.textShadow = `0 0 60px ${palette.textShadow}`;
+}
+
 // ─── Mouse (shared) ──────────────────────────────────────────────────
 const mouse = new THREE.Vector2(0, 0);
 const targetMouse = new THREE.Vector2(0, 0);
@@ -1792,34 +2068,27 @@ window.addEventListener('mousemove', e => {
   targetMouse.y = -(e.clientY / innerHeight) * 2 + 1;
 });
 
-// ─── Create Both Scenes (only one active at a time) ─────────────────
-const greenSection = document.getElementById('hero-green');
-const sunsetSection = document.getElementById('hero-sunset');
-const greenScene = createScene(greenSection, palettes.deepGreen);
-const sunsetScene = createScene(sunsetSection, palettes.warmSunset);
-let activeScene = greenScene;
-const allScenes = [activeScene];
+// ─── Create Single Scene ─────────────────────────────────────────────
+const heroSection = document.getElementById('hero');
+const sceneObj = createScene(heroSection, palettes.deepGreen);
+const allScenes = [sceneObj];
 
-// ─── Palette Toggle ─────────────────────────────────────────────────
+// ─── Palette Cycle Toggle ───────────────────────────────────────────
+let currentPaletteIndex = 0;
 const toggleBtn = document.getElementById('palette-toggle');
+const paletteLabel = document.getElementById('palette-label');
+
 toggleBtn.addEventListener('click', () => {
-  if (activeScene === greenScene) {
-    activeScene = sunsetScene;
-    greenSection.style.display = 'none';
-    sunsetSection.style.display = '';
-    toggleBtn.textContent = 'Switch to Green';
-  } else {
-    activeScene = greenScene;
-    sunsetSection.style.display = 'none';
-    greenSection.style.display = '';
-    toggleBtn.textContent = 'Switch to Sunset';
-  }
-  allScenes[0] = activeScene;
-  // Update size in case of resize while hidden
-  activeScene.camera.aspect = innerWidth / innerHeight;
-  activeScene.camera.updateProjectionMatrix();
-  activeScene.renderer.setSize(innerWidth, innerHeight);
-  activeScene.composer.setSize(innerWidth, innerHeight);
+  currentPaletteIndex = (currentPaletteIndex + 1) % paletteOrder.length;
+  const key = paletteOrder[currentPaletteIndex];
+  const palette = palettes[key];
+  switchPalette(sceneObj, palette);
+  // Update label
+  if (paletteLabel) paletteLabel.textContent = paletteNames[key];
+  // Update button to show next palette
+  const nextIndex = (currentPaletteIndex + 1) % paletteOrder.length;
+  const nextKey = paletteOrder[nextIndex];
+  toggleBtn.textContent = `Next: ${paletteNames[nextKey]}`;
 });
 
 // ─── Animation Loop ──────────────────────────────────────────────────
