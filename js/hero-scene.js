@@ -135,6 +135,10 @@ export function initHero(container, options = {}) {
 
   let paused = false;
   let destroyed = false;
+  let scrollOffset = 0;
+  let frameCount = 0;
+  const ATOM_BASE_Y = 0.75;
+  const BASE_BLOOM = 0.55;
 
   const width = () => container.clientWidth;
   const height = () => container.clientHeight;
@@ -190,7 +194,8 @@ export function initHero(container, options = {}) {
       }
     `,
   };
-  composer.addPass(new ShaderPass(chromaticShader));
+  const chromaticPass = new ShaderPass(chromaticShader);
+  composer.addPass(chromaticPass);
   composer.addPass(new OutputPass());
 
   // Scene graph
@@ -898,6 +903,7 @@ export function initHero(container, options = {}) {
   const galaxyMat = new THREE.ShaderMaterial({
     uniforms: {
       uTime: { value: 0 },
+      uFade: { value: 1.0 },
       uGalaxyCore: { value: palette.galaxyCore.clone() },
       uGalaxyArm1: { value: palette.galaxyArm1.clone() },
       uGalaxyArm2: { value: palette.galaxyArm2.clone() },
@@ -913,6 +919,7 @@ export function initHero(container, options = {}) {
     fragmentShader: `
       ${noiseGLSL}
       uniform float uTime;
+      uniform float uFade;
       uniform vec3 uGalaxyCore;
       uniform vec3 uGalaxyArm1;
       uniform vec3 uGalaxyArm2;
@@ -962,7 +969,7 @@ export function initHero(container, options = {}) {
         vec3 color = mix(uGalaxyCore * 1.3, uGalaxyArm1, smoothstep(0.0, 0.25, r));
         color = mix(color, uGalaxyArm2, smoothstep(0.25, 0.6, r));
 
-        gl_FragColor = vec4(color * brightness, brightness);
+        gl_FragColor = vec4(color * brightness, brightness) * uFade;
       }
     `,
     transparent: true,
@@ -983,6 +990,7 @@ export function initHero(container, options = {}) {
   const nebulaMat = new THREE.ShaderMaterial({
     uniforms: {
       uTime:   { value: 0 },
+      uFade:   { value: 1.0 },
       uVivid1: { value: new THREE.Vector3(palette.nebulaVivid1.r, palette.nebulaVivid1.g, palette.nebulaVivid1.b) },
       uVivid2: { value: new THREE.Vector3(palette.nebulaVivid2.r, palette.nebulaVivid2.g, palette.nebulaVivid2.b) },
       uVivid3: { value: new THREE.Vector3(palette.nebulaVivid3.r, palette.nebulaVivid3.g, palette.nebulaVivid3.b) },
@@ -997,6 +1005,7 @@ export function initHero(container, options = {}) {
     `,
     fragmentShader: `
       uniform float uTime;
+      uniform float uFade;
       uniform vec3 uVivid1;
       uniform vec3 uVivid2;
       uniform vec3 uVivid3;
@@ -1053,7 +1062,7 @@ export function initHero(container, options = {}) {
         float alpha = density * vignette * 0.12;
         alpha = clamp(alpha, 0.0, 1.0);
 
-        gl_FragColor = vec4(nebulaCol * alpha, alpha);
+        gl_FragColor = vec4(nebulaCol * alpha, alpha) * uFade;
       }
     `,
     transparent: true,
@@ -1156,7 +1165,7 @@ export function initHero(container, options = {}) {
     geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
     const mat = new THREE.ShaderMaterial({
-      uniforms: { uTime: { value: 0 } },
+      uniforms: { uTime: { value: 0 }, uFade: { value: 1.0 } },
       vertexShader: `
         attribute float aSize;
         attribute float aOpacity;
@@ -1164,8 +1173,9 @@ export function initHero(container, options = {}) {
         varying float vOpacity;
         varying vec3 vColor;
         uniform float uTime;
+        uniform float uFade;
         void main() {
-          vOpacity = aOpacity;
+          vOpacity = aOpacity * uFade;
           vColor = color;
           vec3 pos = position;
           pos.x += sin(uTime * 0.07 + aPhase) * 0.3;
@@ -1410,6 +1420,12 @@ export function initHero(container, options = {}) {
     targetMouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
   }
 
+  // ─── Helpers ───────────────────────────────────────────────────────
+  function smoothstep(edge0, edge1, x) {
+    const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+    return t * t * (3 - 2 * t);
+  }
+
   // ─── Animation Loop ────────────────────────────────────────────────
   const clock = new THREE.Clock();
   let animId = null;
@@ -1425,99 +1441,145 @@ export function initHero(container, options = {}) {
 
     mouse.lerp(targetMouse, 0.04);
 
+    // Scroll-driven atom positioning
+    const heroH = window.innerHeight;
+    const scrollFraction = Math.min(scrollOffset / heroH, 2.0);
+
     // Auto-rotation
     atomGroup.rotation.y = t * 0.08 + mouse.x * 0.15;
     atomGroup.rotation.x = 0;
-    atomGroup.position.y = 0;
+    atomGroup.position.y = ATOM_BASE_Y + scrollFraction * 5.0;
 
-    // Nucleus breathing
-    const breathe = 1.0 + 0.05 * Math.sin(t * 0.67 * Math.PI * 2);
-    atomGroup.children[0].scale.setScalar(breathe);
-    atomGroup.children[1].scale.setScalar(breathe);
+    // Gradual gas cloud fade — dim earlier to complement overlay
+    const gasFade = 1.0 - smoothstep(0.2, 0.9, scrollFraction);
+    const dustFade = 1.0 - smoothstep(0.3, 1.2, scrollFraction);
+    const pastHero = scrollFraction >= 1.2;
 
-    // Shader times
-    energyMat.uniforms.uTime.value = t % 1000.0;
-    pulseMat.uniforms.uTime.value = t % 1000.0;
+    galaxyMat.uniforms.uFade.value = gasFade;
+    nebulaMat.uniforms.uFade.value = gasFade;
+    cosmicDust.mat.uniforms.uFade.value = dustFade;
 
-    atomGroup.updateMatrixWorld();
-    pulsePlane.position.setFromMatrixPosition(atomGroup.matrixWorld);
-    pulsePlane.quaternion.copy(camera.quaternion);
+    galaxyQuad.visible = gasFade > 0.001;
+    nebulaQuad.visible = gasFade > 0.001;
+    pulsePlane.visible = scrollFraction < 1.0;
 
-    for (let i = 0; i < ringMaterials.length; i++) {
-      ringMaterials[i].uniforms.uTime.value = t % 1000.0;
-    }
+    // Hide meteors + comet when scrolled past
+    for (const m of meteors) m.line.visible = !pastHero;
+    cometTailLine.visible = !pastHero;
+    cometTrailPoints.visible = !pastHero;
+    cometHeadPoints.visible = !pastHero || cometState.active;
 
-    // Orbit particles
-    for (const group of orbitParticleGroups) {
-      const posAttr = group.points.geometry.attributes.position;
-      for (let i = 0; i < group.phases.length; i++) {
-        const param = (group.phases[i] + t * group.speed) % 1;
-        const pt = group.curve.getPointAt(param);
-        posAttr.setXYZ(i, pt.x, pt.y, pt.z);
+    // Bloom fade — start dimming earlier
+    bloomPass.strength = scrollFraction > 0.7
+      ? BASE_BLOOM * (1.0 - smoothstep(0.7, 1.2, scrollFraction))
+      : BASE_BLOOM;
+
+    // Chromatic aberration → passthrough when past hero
+    chromaticPass.uniforms.uIntensity.value = scrollFraction >= 1.0 ? 0 : 0.003;
+
+    // Reduce pixel ratio when deeply scrolled (stars behind dark overlays)
+    const targetPR = scrollFraction > 1.5 ? 1 : Math.min(devicePixelRatio, maxPixelRatio);
+    if (renderer.getPixelRatio() !== targetPR) renderer.setPixelRatio(targetPR);
+
+    // Performance gate
+    const atomVisible = scrollFraction < 1.5;
+
+    // Frame skip when past hero — render at ~30fps
+    frameCount++;
+    if (pastHero && frameCount % 2 !== 0) return;
+
+    if (atomVisible) {
+      // Nucleus breathing
+      const breathe = 1.0 + 0.05 * Math.sin(t * 0.67 * Math.PI * 2);
+      atomGroup.children[0].scale.setScalar(breathe);
+      atomGroup.children[1].scale.setScalar(breathe);
+
+      // Shader times
+      energyMat.uniforms.uTime.value = t % 1000.0;
+      pulseMat.uniforms.uTime.value = t % 1000.0;
+
+      atomGroup.updateMatrixWorld();
+      pulsePlane.position.setFromMatrixPosition(atomGroup.matrixWorld);
+      pulsePlane.quaternion.copy(camera.quaternion);
+
+      for (let i = 0; i < ringMaterials.length; i++) {
+        ringMaterials[i].uniforms.uTime.value = t % 1000.0;
       }
-      posAttr.needsUpdate = true;
-    }
 
-    // Spark particles
-    const sparkPosAttr = sparkPoints.geometry.attributes.position;
-    const sparkColAttr = sparkPoints.geometry.attributes.color;
-    const sparkSizeAttr = sparkPoints.geometry.attributes.aSize;
-    const sparkOpacityAttr = sparkPoints.geometry.attributes.aOpacity;
-    for (let i = 0; i < sparkLifetimes.length; i++) {
-      sparkLifetimes[i] += 0.016;
-
-      if (sparkLifetimes[i] >= sparkMaxLifetimes[i]) {
-        sparkLifetimes[i] = 0;
-        sparkMaxLifetimes[i] = 0.8 + Math.random() * 1.7;
-        sparkPositions[i * 3] = 0;
-        sparkPositions[i * 3 + 1] = 0;
-        sparkPositions[i * 3 + 2] = 0;
-        sparkSizes[i] = 0.012 + Math.random() * 0.016;
-
-        const theta = Math.random() * Math.PI * 2;
-        const phi = Math.acos(2 * Math.random() - 1);
-        const speed = 0.2 + Math.random() * 0.6;
-        sparkVelocities[i].set(
-          Math.sin(phi) * Math.cos(theta) * speed,
-          Math.sin(phi) * Math.sin(theta) * speed,
-          Math.cos(phi) * speed
-        );
+      // Orbit particles
+      for (const group of orbitParticleGroups) {
+        const posAttr = group.points.geometry.attributes.position;
+        for (let i = 0; i < group.phases.length; i++) {
+          const param = (group.phases[i] + t * group.speed) % 1;
+          const pt = group.curve.getPointAt(param);
+          posAttr.setXYZ(i, pt.x, pt.y, pt.z);
+        }
+        posAttr.needsUpdate = true;
       }
 
-      const vel = sparkVelocities[i];
-      sparkPositions[i * 3]     += vel.x * 0.016;
-      sparkPositions[i * 3 + 1] += vel.y * 0.016;
-      sparkPositions[i * 3 + 2] += vel.z * 0.016;
+      // Spark particles
+      const sparkPosAttr = sparkPoints.geometry.attributes.position;
+      const sparkColAttr = sparkPoints.geometry.attributes.color;
+      const sparkSizeAttr = sparkPoints.geometry.attributes.aSize;
+      const sparkOpacityAttr = sparkPoints.geometry.attributes.aOpacity;
+      for (let i = 0; i < sparkLifetimes.length; i++) {
+        sparkLifetimes[i] += 0.016;
 
-      const lifeRatio = 1.0 - (sparkLifetimes[i] / sparkMaxLifetimes[i]);
-      const fade = lifeRatio * lifeRatio * lifeRatio;
-      const brightness = (0.8 + Math.random() * 0.4) * fade;
-      sparkColors[i * 3]     = sc.r * brightness;
-      sparkColors[i * 3 + 1] = sc.g * brightness;
-      sparkColors[i * 3 + 2] = sc.b * brightness;
-      sparkOpacityAttr.array[i] = fade;
+        if (sparkLifetimes[i] >= sparkMaxLifetimes[i]) {
+          sparkLifetimes[i] = 0;
+          sparkMaxLifetimes[i] = 0.8 + Math.random() * 1.7;
+          sparkPositions[i * 3] = 0;
+          sparkPositions[i * 3 + 1] = 0;
+          sparkPositions[i * 3 + 2] = 0;
+          sparkSizes[i] = 0.012 + Math.random() * 0.016;
+
+          const theta = Math.random() * Math.PI * 2;
+          const phi = Math.acos(2 * Math.random() - 1);
+          const speed = 0.2 + Math.random() * 0.6;
+          sparkVelocities[i].set(
+            Math.sin(phi) * Math.cos(theta) * speed,
+            Math.sin(phi) * Math.sin(theta) * speed,
+            Math.cos(phi) * speed
+          );
+        }
+
+        const vel = sparkVelocities[i];
+        sparkPositions[i * 3]     += vel.x * 0.016;
+        sparkPositions[i * 3 + 1] += vel.y * 0.016;
+        sparkPositions[i * 3 + 2] += vel.z * 0.016;
+
+        const lifeRatio = 1.0 - (sparkLifetimes[i] / sparkMaxLifetimes[i]);
+        const fade = lifeRatio * lifeRatio * lifeRatio;
+        const brightness = (0.8 + Math.random() * 0.4) * fade;
+        sparkColors[i * 3]     = sc.r * brightness;
+        sparkColors[i * 3 + 1] = sc.g * brightness;
+        sparkColors[i * 3 + 2] = sc.b * brightness;
+        sparkOpacityAttr.array[i] = fade;
+      }
+      sparkPosAttr.needsUpdate = true;
+      sparkColAttr.needsUpdate = true;
+      sparkSizeAttr.needsUpdate = true;
+      sparkOpacityAttr.needsUpdate = true;
     }
-    sparkPosAttr.needsUpdate = true;
-    sparkColAttr.needsUpdate = true;
-    sparkSizeAttr.needsUpdate = true;
-    sparkOpacityAttr.needsUpdate = true;
 
-    // Star layers
+    // Star layers with scroll parallax
+    const scrollParallaxY = -(scrollOffset / heroH);
+    const parallaxRates = [0.05, 0.10, 0.18]; // bg, mid, feature
     for (let li = 0; li < starLayers.length; li++) {
       const layer = starLayers[li];
       layer.mat.uniforms.uTime.value = t % 1000.0;
       const depth = (li + 1) / starLayers.length;
-      layer.points.position.x = mouse.x * 0.05 * depth;
-      layer.points.position.y = mouse.y * 0.05 * depth;
+      layer.points.position.x = mouse.x * 0.012 * depth;
+      layer.points.position.y = mouse.y * 0.012 * depth + scrollParallaxY * parallaxRates[li];
     }
 
     bgGalaxies.mat.uniforms.uTime.value = t % 1000.0;
     bgGalaxies.points.position.x = mouse.x * 0.03;
-    bgGalaxies.points.position.y = mouse.y * 0.03;
+    bgGalaxies.points.position.y = mouse.y * 0.03 + scrollParallaxY * 0.08;
 
     cosmicDust.mat.uniforms.uTime.value = t % 1000.0;
     cosmicDust.points.position.x = mouse.x * 0.08;
-    cosmicDust.points.position.y = mouse.y * 0.08;
+    cosmicDust.points.position.y = mouse.y * 0.08 + scrollParallaxY * 0.20;
 
     // Flare state machine
     const fs = flareState;
@@ -1555,16 +1617,19 @@ export function initHero(container, options = {}) {
       }
     }
 
-    // Galaxy + nebula
-    galaxyMat.uniforms.uTime.value = t % 10000.0;
-    galaxyQuad.position.x = mouse.x * 0.15;
-    galaxyQuad.position.y = mouse.y * 0.15;
+    // Galaxy + nebula with scroll parallax (skip when fully faded)
+    if (gasFade > 0.001) {
+      galaxyMat.uniforms.uTime.value = t % 10000.0;
+      galaxyQuad.position.x = mouse.x * 0.15;
+      galaxyQuad.position.y = mouse.y * 0.15 + scrollParallaxY * 0.08;
 
-    nebulaMat.uniforms.uTime.value = t % 10000.0;
-    nebulaQuad.position.x = mouse.x * 0.12;
-    nebulaQuad.position.y = mouse.y * 0.12;
+      nebulaMat.uniforms.uTime.value = t % 10000.0;
+      nebulaQuad.position.x = mouse.x * 0.12;
+      nebulaQuad.position.y = mouse.y * 0.12 + scrollParallaxY * 0.08;
+    }
 
-    // Shooting stars
+    // Shooting stars (skip physics when hidden)
+    if (pastHero) { /* meteors hidden, skip */ } else
     for (const m of meteors) {
       if (m.idle) {
         m.timer -= 0.016;
@@ -1590,12 +1655,14 @@ export function initHero(container, options = {}) {
       }
     }
 
-    // Comet
+    // Comet (skip when past hero)
     const cs = cometState;
-    if (!cs.active) {
-      cs.timer -= dt;
-      if (cs.timer <= 0) {
-        fireComet(cs);
+    if (!pastHero) {
+      if (!cs.active) {
+        cs.timer -= dt;
+        if (cs.timer <= 0) {
+          fireComet(cs);
+        }
       }
     }
     if (cs.active) {
@@ -1687,6 +1754,9 @@ export function initHero(container, options = {}) {
 
   // ─── Control API ───────────────────────────────────────────────────
   return {
+    setScrollProgress(sy) {
+      scrollOffset = sy;
+    },
     pause() {
       paused = true;
       clock.stop();
