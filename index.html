@@ -47,6 +47,9 @@
 </head>
 <body>
 
+<div id="bg-canvas"></div>
+<div id="page-overlay"></div>
+
 <!-- Nav -->
 <nav class="nav" id="nav">
   <a href="#hero" class="nav-logo">
@@ -67,13 +70,11 @@
 
 <!-- Hero -->
 <section class="hero" id="hero">
-  <div class="hero-canvas" id="hero-canvas"></div>
   <div class="hero-overlay" id="hero-overlay">
     <h1 class="hero-title">
       <span class="hero-title-main">unify</span>
       <span class="hero-title-sub">Labs</span>
     </h1>
-    <p class="hero-tagline">Engineering software that matters</p>
   </div>
   <div class="scroll-cue" id="scroll-cue">
     <span>Scroll</span>
@@ -122,26 +123,35 @@
   <div class="container">
     <span class="eyebrow">Approach</span>
     <h2 class="section-heading">How we work</h2>
-    <div class="approach-grid">
+    <div class="approach-timeline">
+      <div class="approach-timeline-line"></div>
       <div class="approach-item">
-        <span class="approach-num">01</span>
-        <h3 class="approach-title">Understand Deeply</h3>
-        <p class="approach-body">We start by listening. Every engagement begins with understanding your domain, constraints, and ambitions before writing a single line of code.</p>
+        <div class="approach-marker">01</div>
+        <div class="approach-content">
+          <h3 class="approach-title">Understand Deeply</h3>
+          <p class="approach-body">We start by listening. Every engagement begins with understanding your domain, constraints, and ambitions before writing a single line of code.</p>
+        </div>
       </div>
       <div class="approach-item">
-        <span class="approach-num">02</span>
-        <h3 class="approach-title">Architect for Change</h3>
-        <p class="approach-body">Requirements evolve. We design systems with clean boundaries and deliberate abstractions so they bend without breaking.</p>
+        <div class="approach-marker">02</div>
+        <div class="approach-content">
+          <h3 class="approach-title">Architect for Change</h3>
+          <p class="approach-body">Requirements evolve. We design systems with clean boundaries and deliberate abstractions so they bend without breaking.</p>
+        </div>
       </div>
       <div class="approach-item">
-        <span class="approach-num">03</span>
-        <h3 class="approach-title">Ship with Confidence</h3>
-        <p class="approach-body">Testing, CI/CD, observability. We build the infrastructure around the code so deployments are boring and reliable.</p>
+        <div class="approach-marker">03</div>
+        <div class="approach-content">
+          <h3 class="approach-title">Ship with Confidence</h3>
+          <p class="approach-body">Testing, CI/CD, observability. We build the infrastructure around the code so deployments are boring and reliable.</p>
+        </div>
       </div>
       <div class="approach-item">
-        <span class="approach-num">04</span>
-        <h3 class="approach-title">Iterate Relentlessly</h3>
-        <p class="approach-body">Software is never done. We measure, learn, and refine — treating every release as a starting point, not an endpoint.</p>
+        <div class="approach-marker">04</div>
+        <div class="approach-content">
+          <h3 class="approach-title">Iterate Relentlessly</h3>
+          <p class="approach-body">Software is never done. We measure, learn, and refine — treating every release as a starting point, not an endpoint.</p>
+        </div>
       </div>
     </div>
   </div>

@@ -1,19 +1,20 @@
 import { initHero } from './hero-scene.js';
 
 // ─── Hero Init ────────────────────────────────────────────────────────
-const heroCanvas = document.getElementById('hero-canvas');
-const hero = initHero(heroCanvas);
+const bgCanvas = document.getElementById('bg-canvas');
+const hero = initHero(bgCanvas);
 
-// Pause hero when offscreen
-const heroSection = document.getElementById('hero');
-const heroObserver = new IntersectionObserver(([entry]) => {
-  if (entry.isIntersecting) {
-    hero.resume();
-  } else {
-    hero.pause();
+// Wire scroll → hero scene (rAF-batched for perf)
+let scrollTicking = false;
+window.addEventListener('scroll', () => {
+  if (!scrollTicking) {
+    scrollTicking = true;
+    requestAnimationFrame(() => {
+      hero.setScrollProgress(window.scrollY);
+      scrollTicking = false;
+    });
   }
-}, { threshold: 0.05 });
-heroObserver.observe(heroSection);
+}, { passive: true });
 
 // ─── Nav scroll behavior ──────────────────────────────────────────────
 const nav = document.getElementById('nav');
@@ -52,12 +53,12 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
 // Hero overlay fade on scroll
 gsap.to('#hero-overlay', {
   opacity: 0,
-  y: -30,
+  y: -60,
   ease: 'none',
   scrollTrigger: {
     trigger: '#hero',
     start: 'top top',
-    end: '60% top',
+    end: '50% top',
     scrub: true,
   },
 });
@@ -73,6 +74,40 @@ gsap.to('#scroll-cue', {
     scrub: true,
   },
 });
+
+// Single overlay darkening + blur, driven by scroll
+const overlay = document.getElementById('page-overlay');
+if (overlay) {
+  // Hero scroll: ramp from 0 → 0.75 opacity, 0 → 16px blur
+  gsap.to(overlay, {
+    '--overlay-alpha': 0.75,
+    '--overlay-blur': '16px',
+    ease: 'power2.in',
+    scrollTrigger: {
+      trigger: '#hero',
+      start: '20% top',
+      end: '100% top',
+      scrub: true,
+    },
+  });
+
+  // Post-hero: slow ramp 0.75 → 0.88, starts at hero bottom → through work
+  gsap.fromTo(overlay,
+    { '--overlay-alpha': 0.75 },
+    {
+      '--overlay-alpha': 0.88,
+      immediateRender: false,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '#hero',
+        start: '100% top',
+        endTrigger: '.work',
+        end: 'bottom top',
+        scrub: true,
+      },
+    }
+  );
+}
 
 // ─── Section reveals ─────────────────────────────────────────────────
 
@@ -105,6 +140,7 @@ if (!prefersReducedMotion) {
       tl.from(heading, {
         opacity: 0,
         y: 25,
+        scale: 0.98,
         duration: 0.6,
         ease: 'power2.out',
       }, '-=0.3');
@@ -134,7 +170,7 @@ if (!prefersReducedMotion) {
     },
   });
 
-  // Approach items stagger
+  // Approach items stagger up from timeline
   gsap.from('#approach .approach-item', {
     opacity: 0,
     y: 30,
@@ -142,7 +178,7 @@ if (!prefersReducedMotion) {
     stagger: 0.12,
     ease: 'power2.out',
     scrollTrigger: {
-      trigger: '#approach .approach-grid',
+      trigger: '#approach .approach-timeline',
       start: 'top 80%',
       toggleActions: 'play none none reverse',
     },
@@ -161,6 +197,16 @@ if (!prefersReducedMotion) {
       start: 'top 80%',
       toggleActions: 'play none none reverse',
     },
+  });
+
+  // Shooting star dividers
+  document.querySelectorAll('.section:not(.contact)').forEach(section => {
+    ScrollTrigger.create({
+      trigger: section,
+      start: 'bottom 90%',
+      once: true,
+      onEnter: () => section.classList.add('star-fired'),
+    });
   });
 
   // Contact form reveal
@@ -195,6 +241,21 @@ gsap.matchMedia().add('(min-width: 768px)', () => {
     });
   }
 });
+
+// ─── Card tilt hover effect (desktop only) ──────────────────────────
+if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+  document.querySelectorAll('.card, .work-card:not(.work-card-teaser)').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      card.style.transform = `perspective(800px) rotateY(${x * 6}deg) rotateX(${-y * 6}deg) translateY(-4px) scale(1.01)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+    });
+  });
+}
 
 // ─── Contact form submission ──────────────────────────────────────────
 const form = document.getElementById('contact-form');
