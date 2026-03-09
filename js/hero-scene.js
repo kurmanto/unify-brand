@@ -145,7 +145,7 @@ export function initHero(container, options = {}) {
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(45, width() / height(), 0.1, 100);
-  camera.position.set(0, 0.3, 5.5);
+  camera.position.set(0, 0.7, 5.5);
 
   const renderer = new THREE.WebGLRenderer({ antialias: !isMobile });
   renderer.setSize(width(), height());
@@ -283,14 +283,14 @@ export function initHero(container, options = {}) {
   });
 
   const energySphere = new THREE.Mesh(
-    new THREE.SphereGeometry(0.35, isMobile ? 32 : 48, isMobile ? 32 : 48),
+    new THREE.SphereGeometry(0.25, isMobile ? 32 : 48, isMobile ? 32 : 48),
     energyMat
   );
   atomGroup.add(energySphere);
 
   // ─── 2. Outer Glow Halo ────────────────────────────────────────────
   const outerGlow = new THREE.Mesh(
-    new THREE.SphereGeometry(0.5, 32, 32),
+    new THREE.SphereGeometry(0.4, 32, 32),
     new THREE.MeshBasicMaterial({
       color: palette.glowColor.clone(),
       transparent: true,
