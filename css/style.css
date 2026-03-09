@@ -234,7 +234,7 @@ input, textarea { font: inherit; color: inherit; }
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  padding-bottom: 12vh;
+  padding-bottom: 22vh;
   pointer-events: none;
   z-index: 10;
 }
