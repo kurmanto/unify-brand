@@ -140,8 +140,31 @@ export function initHero(container, options = {}) {
   // IO-based pause: stop rAF entirely when hero offscreen
   let heroPaused = false;
   let frameCount = 0;
-  const ATOM_BASE_Y = 0.75;
-  const ATOM_OFFSET_X = options.atomOffsetX ?? 0;
+  let ATOM_BASE_Y = 0.75;
+  let ATOM_SCALE = 1.0;
+
+  function computeAtomResponsive() {
+    if (window.innerWidth < 768) {
+      ATOM_BASE_Y = -0.15;
+      ATOM_SCALE = 0.45;
+    } else if (window.innerWidth < 1024) {
+      ATOM_BASE_Y = 0.5;
+      ATOM_SCALE = 0.85;
+    } else {
+      ATOM_BASE_Y = 0.75;
+      ATOM_SCALE = 1.0;
+    }
+  }
+  computeAtomResponsive();
+
+  let ATOM_OFFSET_X = options.atomOffsetX ?? 0;
+
+  function computeAtomOffsetX() {
+    if (window.innerWidth < 768) return 0;
+    if (window.innerWidth < 1024) return (options.atomOffsetX ?? 0) * 0.5;
+    return options.atomOffsetX ?? 0;
+  }
+  ATOM_OFFSET_X = computeAtomOffsetX();
   const BASE_BLOOM = 0.55;
 
   const width = () => container.clientWidth;
@@ -1466,7 +1489,7 @@ export function initHero(container, options = {}) {
     // ── Scroll-driven atom: shrink + fade in place ──
     const shrink = smoothstep(0.15, 0.75, scrollFraction);
     const easedShrink = shrink * shrink; // power2.in
-    atomGroup.scale.setScalar(1.0 - 0.85 * easedShrink);
+    atomGroup.scale.setScalar(ATOM_SCALE * (1.0 - 0.85 * easedShrink));
     atomGroup.position.x = ATOM_OFFSET_X;
     atomGroup.position.y = ATOM_BASE_Y + scrollFraction * 0.3; // gentle drift up
 
@@ -1794,6 +1817,10 @@ export function initHero(container, options = {}) {
   // ─── Resize via ResizeObserver ──────────────────────────────────────
   const ro = new ResizeObserver(() => {
     if (destroyed) return;
+    ATOM_OFFSET_X = computeAtomOffsetX();
+    computeAtomResponsive();
+    atomGroup.position.x = ATOM_OFFSET_X;
+    atomGroup.position.y = ATOM_BASE_Y;
     const w = width();
     const h = height();
     camera.aspect = w / h;
