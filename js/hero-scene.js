@@ -408,10 +408,17 @@ export function initHero(container, options = {}) {
   atomGroup.add(sparkPoints);
 
   // ─── 4. Orbit Rings ────────────────────────────────────────────────
+  // URL-param overrides for fast iteration: ?ring2ry=0.78&ring3ry=0.75&ring3rot=38
+  const _qp = new URLSearchParams(window.location.search);
+  const _f = (k, d) => { const v = _qp.get(k); return v !== null ? parseFloat(v) : d; };
+
+  const RING_FADE_INNER = _f('ringFadeInner', 0.7);
+  const RING_FADE_OUTER = _f('ringFadeOuter', 1.4);
+
   const ringDefs = [
-    { rx: 2.0, ry: 0.7,  rotZ: -20 * Math.PI / 180, baseOpacity: 0.6,  tube: 0.012, phase: 0.0 },
-    { rx: 2.0, ry: 0.85, rotZ:  15 * Math.PI / 180, baseOpacity: 0.35, tube: 0.010, phase: 2.1 },
-    { rx: 2.0, ry: 0.9,  rotZ:  50 * Math.PI / 180, baseOpacity: 0.2,  tube: 0.010, phase: 4.2 },
+    { rx: 2.0, ry: 0.7,      rotZ: -20 * Math.PI / 180,       baseOpacity: 0.6,  tube: 0.012, phase: 0.0 },
+    { rx: 2.0, ry: _f('ring2ry', 0.78), rotZ: _f('ring2rot', 15) * Math.PI / 180,  baseOpacity: 0.35, tube: 0.010, phase: 2.1 },
+    { rx: 2.0, ry: _f('ring3ry', 0.75), rotZ: _f('ring3rot', 38) * Math.PI / 180,  baseOpacity: 0.2,  tube: 0.010, phase: 4.2 },
   ];
 
   const ringCurves = [];
@@ -434,21 +441,28 @@ export function initHero(container, options = {}) {
         uRingColor: { value: palette.ringColor.clone() },
         uPhase: { value: def.phase },
         uFade: { value: 1.0 },
+        uFadeInner: { value: RING_FADE_INNER },
+        uFadeOuter: { value: RING_FADE_OUTER },
       },
       vertexShader: `
         varying vec2 vUv;
+        varying float vDistFromCore;
         void main() {
           vUv = uv;
+          vDistFromCore = length(position);
           gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         }
       `,
       fragmentShader: `
         uniform float uTime;
         uniform float uFade;
+        uniform float uFadeInner;
+        uniform float uFadeOuter;
         uniform float uBaseOpacity;
         uniform vec3 uRingColor;
         uniform float uPhase;
         varying vec2 vUv;
+        varying float vDistFromCore;
 
         void main() {
           float t = vUv.x;
@@ -461,7 +475,8 @@ export function initHero(container, options = {}) {
 
           vec3 color = mix(vec3(1.0), uRingColor, 0.2 + 0.15 * (pulse1 + pulse2));
 
-          gl_FragColor = vec4(color * brightness, brightness * uFade);
+          float coreFade = smoothstep(uFadeInner, uFadeOuter, vDistFromCore);
+          gl_FragColor = vec4(color * brightness, brightness * uFade * coreFade);
         }
       `,
       transparent: true,
@@ -481,17 +496,23 @@ export function initHero(container, options = {}) {
   const PARTICLES_PER_RING = 4;
   const orbitParticleGroups = [];
 
+  // Responsive dot sizing
+  const DOT_DESKTOP = { size: 0.04, opacity: 0.9 };
+  const DOT_MOBILE  = { size: 0.02, opacity: 0.35 };
+  function dotParams() { return window.innerWidth < 768 ? DOT_MOBILE : DOT_DESKTOP; }
+
   for (let ri = 0; ri < ringDefs.length; ri++) {
     const count = PARTICLES_PER_RING;
     const posArr = new Float32Array(count * 3);
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
 
+    const dp = dotParams();
     const mat = new THREE.PointsMaterial({
       color: 0xffffff,
-      size: 0.04,
+      size: dp.size,
       transparent: true,
-      opacity: 0.9,
+      opacity: dp.opacity,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
       toneMapped: false,
@@ -507,7 +528,7 @@ export function initHero(container, options = {}) {
     }
     const speed = 0.15 + ri * 0.02;
 
-    orbitParticleGroups.push({ points, curve: ringCurves[ri], phases, speed, posArr });
+    orbitParticleGroups.push({ points, curve: ringCurves[ri], phases, speed, posArr, baseOpacity: dp.opacity });
   }
 
   // ─── 6. Cosmic Space Background ────────────────────────────────────
@@ -1549,7 +1570,7 @@ export function initHero(container, options = {}) {
       sparkMat.uniforms.uFade.value = atomFade;
       outerGlow.material.opacity = 0.04 * atomFade;
       for (const rm of ringMaterials) rm.uniforms.uFade.value = atomFade;
-      for (const group of orbitParticleGroups) group.points.material.opacity = 0.9 * atomFade;
+      for (const group of orbitParticleGroups) group.points.material.opacity = (group.baseOpacity ?? 0.9) * atomFade;
 
       atomGroup.updateMatrixWorld();
       pulsePlane.position.setFromMatrixPosition(atomGroup.matrixWorld);
@@ -1821,6 +1842,12 @@ export function initHero(container, options = {}) {
     computeAtomResponsive();
     atomGroup.position.x = ATOM_OFFSET_X;
     atomGroup.position.y = ATOM_BASE_Y;
+    // Update orbit dot size/opacity for breakpoint
+    const dp = dotParams();
+    for (const g of orbitParticleGroups) {
+      g.points.material.size = dp.size;
+      g.baseOpacity = dp.opacity;
+    }
     const w = width();
     const h = height();
     camera.aspect = w / h;
