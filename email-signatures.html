@@ -46,7 +46,7 @@
     margin-bottom: 28px;
     text-shadow: 0 0 20px rgba(42,107,69,0.3);
   }
-  .variant { margin-bottom: 20px; }
+  .variant { margin-bottom: 20px; position: relative; }
   .variant-label {
     font-size: 11px;
     color: rgba(255,255,255,0.2);
@@ -60,6 +60,32 @@
   }
   .sig-frame.light { background: #ffffff; padding: 32px; }
   .sig-frame.dark { background: #060606; padding: 32px; }
+  .copy-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.4);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .copy-btn:hover {
+    background: rgba(42,107,69,0.15);
+    border-color: rgba(42,107,69,0.3);
+    color: #2a6b45;
+  }
+  .copy-btn.copied {
+    background: rgba(42,107,69,0.2);
+    border-color: rgba(42,107,69,0.4);
+    color: #2a6b45;
+  }
 </style>
 </head>
 <body>
@@ -287,6 +313,91 @@
     </div>
   </div>
 </div>
+
+<script>
+// Add copy buttons to each variant
+document.querySelectorAll('.variant').forEach(v => {
+  const btn = document.createElement('button');
+  btn.className = 'copy-btn';
+  btn.textContent = 'Copy';
+  btn.addEventListener('click', () => copySignature(v, btn));
+  v.appendChild(btn);
+});
+
+// Convert SVG element to base64 PNG data URL via canvas
+function svgToPngDataUrl(svgEl) {
+  return new Promise(resolve => {
+    const svgData = new XMLSerializer().serializeToString(svgEl);
+    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+    const img = new Image();
+    const s = 2; // 2x for retina
+    const w = svgEl.getAttribute('width') || 32;
+    const h = svgEl.getAttribute('height') || 32;
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = w * s;
+      canvas.height = h * s;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w * s, h * s);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL('image/png'));
+    };
+    img.src = url;
+  });
+}
+
+async function copySignature(variant, btn) {
+  const frame = variant.querySelector('.sig-frame');
+  const clone = frame.cloneNode(true);
+
+  // Replace SVGs with <img> PNGs for Gmail compatibility
+  const svgs = frame.querySelectorAll('svg');
+  const cloneSvgs = clone.querySelectorAll('svg');
+  for (let i = 0; i < svgs.length; i++) {
+    const dataUrl = await svgToPngDataUrl(svgs[i]);
+    const img = document.createElement('img');
+    img.src = dataUrl;
+    img.width = svgs[i].getAttribute('width') || 32;
+    img.height = svgs[i].getAttribute('height') || 32;
+    img.style.display = 'block';
+    cloneSvgs[i].replaceWith(img);
+  }
+
+  // Get just the table HTML (the actual signature, not the frame wrapper)
+  const html = clone.innerHTML;
+
+  try {
+    await navigator.clipboard.write([
+      new ClipboardItem({
+        'text/html': new Blob([html], { type: 'text/html' }),
+        'text/plain': new Blob([frame.innerText], { type: 'text/plain' })
+      })
+    ]);
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy';
+      btn.classList.remove('copied');
+    }, 2000);
+  } catch (e) {
+    // Fallback: select the content for manual copy
+    const range = document.createRange();
+    range.selectNodeContents(frame);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    document.execCommand('copy');
+    sel.removeAllRanges();
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy';
+      btn.classList.remove('copied');
+    }, 2000);
+  }
+}
+</script>
 
 </body>
 </html>
