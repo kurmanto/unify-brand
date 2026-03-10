@@ -20,7 +20,7 @@ window.addEventListener('scroll', () => {
 const nav = document.getElementById('nav');
 
 function updateNav() {
-  if (window.scrollY > window.innerHeight * 0.8) {
+  if (window.scrollY > window.innerHeight * 0.65) {
     nav.classList.add('scrolled');
   } else {
     nav.classList.remove('scrolled');
@@ -50,15 +50,15 @@ gsap.registerPlugin(ScrollTrigger);
 
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// Hero overlay fade on scroll
+// Hero overlay fade on scroll — lingers longer to bridge into about section
 gsap.to('#hero-overlay', {
   opacity: 0,
   y: -60,
-  ease: 'none',
+  ease: 'power1.in',
   scrollTrigger: {
     trigger: '#hero',
-    start: 'top top',
-    end: '50% top',
+    start: '10% top',
+    end: '60% top',
     scrub: true,
   },
 });

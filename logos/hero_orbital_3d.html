@@ -95,6 +95,46 @@
     color: rgba(255,255,255,0.9);
   }
 
+  /* Sticky Navbar */
+  .site-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 90;
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(6,6,6,0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    opacity: 0;
+    transform: translateY(-100%);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    pointer-events: none;
+  }
+  .site-nav.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .nav-logo svg { width: 28px; height: 28px; }
+  .nav-wordmark {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: #fff;
+    letter-spacing: -0.02em;
+  }
+  .nav-links { margin-left: auto; }
+
   /* Comparison section */
   .comparison {
     max-width: 1100px;
@@ -174,6 +214,20 @@
 </svg>
 
 <button class="palette-toggle" id="palette-toggle">Next: Warm Sunset</button>
+
+<nav class="site-nav" id="site-nav">
+  <div class="nav-logo">
+    <svg viewBox="0 0 44 44" fill="none">
+      <circle cx="22" cy="22" r="5" fill="url(#energy-ball)" filter="url(#glow)"/>
+      <circle cx="22" cy="22" r="3" fill="white"/>
+      <ellipse cx="22" cy="22" rx="16" ry="5" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none" transform="rotate(-30 22 22)"/>
+      <ellipse cx="22" cy="22" rx="16" ry="6.5" stroke="rgba(255,255,255,0.3)" stroke-width="1.2" fill="none" transform="rotate(40 22 22)"/>
+      <ellipse cx="22" cy="22" rx="16" ry="7" stroke="rgba(255,255,255,0.18)" stroke-width="1.2" fill="none" transform="rotate(90 22 22)"/>
+    </svg>
+    <span class="nav-wordmark">unify</span>
+  </div>
+  <div class="nav-links"></div>
+</nav>
 
 <!-- Hero — Dynamic Palette -->
 <section class="hero" id="hero">
@@ -649,6 +703,7 @@ function createScene(container, palette) {
       uColor2: { value: palette.color2.clone() },
       uColor3: { value: palette.color3.clone() },
       uColor4: { value: palette.color4.clone() },
+      uScrollFade: { value: 1.0 },
     },
     vertexShader: `
       ${noiseGLSL}
@@ -682,6 +737,7 @@ function createScene(container, palette) {
       uniform vec3 uColor2;
       uniform vec3 uColor3;
       uniform vec3 uColor4;
+      uniform float uScrollFade;
       varying vec3 vNormal;
       varying vec3 vPosition;
       varying vec3 vWorldPos;
@@ -716,7 +772,7 @@ function createScene(container, palette) {
         float pulse = 0.85 + 0.15 * sin(uTime * 0.8);
         float intensity = (1.2 + fresnel * 1.5) * pulse;
 
-        gl_FragColor = vec4(color * intensity, 0.9 + fresnel * 0.1);
+        gl_FragColor = vec4(color * intensity * uScrollFade, (0.9 + fresnel * 0.1) * uScrollFade);
       }
     `,
     transparent: true,
@@ -784,6 +840,9 @@ function createScene(container, palette) {
   sparkGeo.setAttribute('aOpacity', new THREE.BufferAttribute(sparkOpacities, 1));
 
   const sparkMat = new THREE.ShaderMaterial({
+    uniforms: {
+      uScrollFade: { value: 1.0 },
+    },
     vertexShader: `
       attribute float aSize;
       attribute float aOpacity;
@@ -798,13 +857,14 @@ function createScene(container, palette) {
       }
     `,
     fragmentShader: `
+      uniform float uScrollFade;
       varying vec3 vColor;
       varying float vOpacity;
       void main() {
         float d = length(gl_PointCoord - vec2(0.5));
         if (d > 0.5) discard;
         float falloff = 1.0 - smoothstep(0.0, 0.5, d);
-        gl_FragColor = vec4(vColor * falloff, vOpacity * falloff);
+        gl_FragColor = vec4(vColor * falloff * uScrollFade, vOpacity * falloff * uScrollFade);
       }
     `,
     vertexColors: true,
@@ -844,6 +904,7 @@ function createScene(container, palette) {
         uBaseOpacity: { value: def.baseOpacity },
         uRingColor: { value: palette.ringColor.clone() },
         uPhase: { value: def.phase },
+        uScrollFade: { value: 1.0 },
       },
       vertexShader: `
         varying vec2 vUv;
@@ -857,6 +918,7 @@ function createScene(container, palette) {
         uniform float uBaseOpacity;
         uniform vec3 uRingColor;
         uniform float uPhase;
+        uniform float uScrollFade;
         varying vec2 vUv;
 
         void main() {
@@ -872,7 +934,7 @@ function createScene(container, palette) {
           // Mix white core with palette ring color
           vec3 color = mix(vec3(1.0), uRingColor, 0.2 + 0.15 * (pulse1 + pulse2));
 
-          gl_FragColor = vec4(color * brightness, brightness);
+          gl_FragColor = vec4(color * brightness * uScrollFade, brightness * uScrollFade);
         }
       `,
       transparent: true,
@@ -1576,6 +1638,7 @@ function createScene(container, palette) {
       uTime: { value: 0 },
       uGlowColor: { value: new THREE.Vector3(palette.glowColor.r, palette.glowColor.g, palette.glowColor.b) },
       uRingColor: { value: palette.ringColor.clone() },
+      uScrollFade: { value: 1.0 },
     },
     vertexShader: `
       varying vec2 vUv;
@@ -1588,6 +1651,7 @@ function createScene(container, palette) {
       uniform float uTime;
       uniform vec3 uGlowColor;
       uniform vec3 uRingColor;
+      uniform float uScrollFade;
       varying vec2 vUv;
       void main() {
         vec2 center = vec2(0.5);
@@ -1611,7 +1675,7 @@ function createScene(container, palette) {
         }
 
         if (totalAlpha < 0.001) discard;
-        gl_FragColor = vec4(totalColor, totalAlpha);
+        gl_FragColor = vec4(totalColor * uScrollFade, totalAlpha * uScrollFade);
       }
     `,
     transparent: true,
@@ -1917,7 +1981,7 @@ function createScene(container, palette) {
   return {
     scene, camera, renderer, composer,
     atomGroup, energyMat, outerGlow, sparkGeo,
-    sparkPoints, sparkPositions, sparkVelocities, sparkLifetimes, sparkMaxLifetimes, sparkColors, sparkSizes, sc,
+    sparkPoints, sparkMat, sparkPositions, sparkVelocities, sparkLifetimes, sparkMaxLifetimes, sparkColors, sparkSizes, sc,
     ringMeshes, ringMaterials,
     orbitParticleGroups,
     starLayers, bgGalaxies, cosmicDust, pulseMat, pulsePlane,
@@ -2091,6 +2155,15 @@ toggleBtn.addEventListener('click', () => {
   toggleBtn.textContent = `Next: ${paletteNames[nextKey]}`;
 });
 
+// ─── Scroll Integration — DOM refs & easing ─────────────────────────
+const overlayTitleEl = document.getElementById('overlay-title');
+const overlayTagEl = document.querySelector('.overlay-tag');
+const paletteLabelEl = document.getElementById('palette-label');
+const siteNavEl = document.getElementById('site-nav');
+
+function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+function easeInQuad(t) { return t * t; }
+
 // ─── Animation Loop ──────────────────────────────────────────────────
 const clock = new THREE.Clock();
 
@@ -2099,6 +2172,37 @@ function animate() {
   const t = clock.getElapsedTime();
   const dt = clock.getDelta() || 0.016;
 
+  // ─── Scroll fade ───
+  const scrollY = Math.max(0, window.scrollY);
+  const heroH = window.innerHeight;
+  const scrollProgress = Math.min(scrollY / heroH, 1.0);
+
+  // Text fade (0–35%)
+  const textFade = 1.0 - Math.min(scrollProgress / 0.35, 1.0);
+  if (overlayTitleEl) {
+    overlayTitleEl.style.opacity = textFade;
+    overlayTitleEl.style.transform = `translateY(${-scrollProgress * 60}px)`;
+  }
+  if (overlayTagEl) {
+    overlayTagEl.style.opacity = textFade;
+    overlayTagEl.style.transform = `translateY(${-scrollProgress * 40}px)`;
+  }
+  if (paletteLabelEl) {
+    paletteLabelEl.style.opacity = textFade;
+  }
+
+  // Atom fade (0–70%)
+  const atomProgress = Math.min(scrollProgress / 0.70, 1.0);
+  const atomFade = 1.0 - easeInQuad(atomProgress);
+  const atomRise = easeOutCubic(atomProgress) * 1.5;
+  const atomScale = 1.0 - atomProgress * 0.25;
+
+  // Navbar toggle (40%+)
+  if (siteNavEl) {
+    if (scrollProgress >= 0.4) siteNavEl.classList.add('visible');
+    else siteNavEl.classList.remove('visible');
+  }
+
   // Smooth mouse lerp
   mouse.lerp(targetMouse, 0.04);
 
@@ -2106,7 +2210,20 @@ function animate() {
     // Auto-rotation (Y only — keeps rings circular, no elliptical perspective)
     s.atomGroup.rotation.y = t * 0.08 + mouse.x * 0.15;
     s.atomGroup.rotation.x = 0;
-    s.atomGroup.position.y = 0;
+    s.atomGroup.position.y = atomRise;
+    s.atomGroup.scale.setScalar(atomScale);
+
+    // Scroll fade on shader materials
+    s.energyMat.uniforms.uScrollFade.value = atomFade;
+    s.sparkMat.uniforms.uScrollFade.value = atomFade;
+    for (const rm of s.ringMaterials) {
+      rm.uniforms.uScrollFade.value = atomFade;
+    }
+    s.pulseMat.uniforms.uScrollFade.value = atomFade;
+    s.outerGlow.material.opacity = 0.04 * atomFade;
+    for (const group of s.orbitParticleGroups) {
+      group.points.material.opacity = 0.9 * atomFade;
+    }
 
     // Nucleus breathing — subtle scale pulse
     const breathe = 1.0 + 0.05 * Math.sin(t * 0.67 * Math.PI * 2);
@@ -2367,8 +2484,8 @@ function animate() {
       }
     }
 
-    // Render
-    s.composer.render();
+    // Render (skip when fully scrolled past hero)
+    if (scrollProgress < 1.0) s.composer.render();
   }
 }
 

@@ -4,3 +4,4 @@
 # Debug & verification screenshots
 debug-*.png
 verify-*.png
+.vercel

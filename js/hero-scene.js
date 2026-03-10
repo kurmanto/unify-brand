@@ -1461,12 +1461,17 @@ export function initHero(container, options = {}) {
     // Auto-rotation
     atomGroup.rotation.y = t * 0.08 + mouse.x * 0.15;
     atomGroup.rotation.x = 0;
-    atomGroup.position.y = ATOM_BASE_Y + scrollFraction * 2.0;
 
-    // Gradual gas cloud fade — dim earlier to complement overlay
-    const gasFade = 1.0 - smoothstep(0.2, 0.9, scrollFraction);
-    const dustFade = 1.0 - smoothstep(0.3, 1.2, scrollFraction);
-    const pastHero = scrollFraction >= 1.2;
+    // ── Scroll-driven atom: shrink + fade in place ──
+    const shrink = smoothstep(0.15, 0.75, scrollFraction);
+    const easedShrink = shrink * shrink; // power2.in
+    atomGroup.scale.setScalar(1.0 - 0.85 * easedShrink);
+    atomGroup.position.y = ATOM_BASE_Y + scrollFraction * 0.3; // gentle drift up
+
+    // Gradual gas cloud fade
+    const gasFade = 1.0 - smoothstep(0.40, 0.80, scrollFraction);
+    const dustFade = 1.0 - smoothstep(0.45, 0.85, scrollFraction);
+    const pastHero = scrollFraction >= 0.9;
 
     galaxyMat.uniforms.uFade.value = gasFade;
     nebulaMat.uniforms.uFade.value = gasFade;
@@ -1474,7 +1479,7 @@ export function initHero(container, options = {}) {
 
     galaxyQuad.visible = gasFade > 0.001;
     nebulaQuad.visible = gasFade > 0.001;
-    pulsePlane.visible = scrollFraction < 1.0;
+    pulsePlane.visible = scrollFraction < 0.8;
 
     // Hide meteors + comet when scrolled past
     for (const m of meteors) m.line.visible = !pastHero;
@@ -1482,20 +1487,20 @@ export function initHero(container, options = {}) {
     cometTrailPoints.visible = !pastHero;
     cometHeadPoints.visible = !pastHero || cometState.active;
 
-    // Bloom fade — start dimming earlier
-    bloomPass.strength = scrollFraction > 0.6
-      ? BASE_BLOOM * (1.0 - smoothstep(0.6, 1.0, scrollFraction))
+    // Bloom fade
+    bloomPass.strength = scrollFraction > 0.2
+      ? BASE_BLOOM * (1.0 - smoothstep(0.2, 0.70, scrollFraction))
       : BASE_BLOOM;
 
     // Chromatic aberration → passthrough when past hero
-    chromaticPass.uniforms.uIntensity.value = scrollFraction >= 1.0 ? 0 : 0.003;
+    chromaticPass.uniforms.uIntensity.value = scrollFraction >= 0.8 ? 0 : 0.003;
 
-    // Reduce pixel ratio when deeply scrolled (stars behind dark overlays)
-    const targetPR = scrollFraction > 1.2 ? 1 : Math.min(devicePixelRatio, maxPixelRatio);
+    // Reduce pixel ratio when deeply scrolled
+    const targetPR = scrollFraction > 0.9 ? 1 : Math.min(devicePixelRatio, maxPixelRatio);
     if (renderer.getPixelRatio() !== targetPR) renderer.setPixelRatio(targetPR);
 
-    // Sharp atom fade-out (0.85–1.05 scroll range)
-    const atomFade = 1.0 - smoothstep(0.85, 1.05, scrollFraction);
+    // Atom opacity fade (overlaps shrink, finishes just before about section)
+    const atomFade = 1.0 - smoothstep(0.40, 0.75, scrollFraction);
     const atomVisible = atomFade > 0.001;
 
     // Frame skip when past hero — render at ~30fps
