@@ -60,10 +60,14 @@
   }
   .sig-frame.light { background: #ffffff; padding: 32px; }
   .sig-frame.dark { background: #060606; padding: 32px; }
-  .copy-btn {
+  .copy-group {
     position: absolute;
     top: 0;
     right: 0;
+    display: flex;
+    gap: 4px;
+  }
+  .copy-btn {
     background: rgba(255,255,255,0.06);
     border: 1px solid rgba(255,255,255,0.1);
     color: rgba(255,255,255,0.4);
@@ -691,13 +695,24 @@
 // ── Hosted logo base URL (logos served from GitHub) ──
 const LOGO_BASE_URL = 'https://raw.githubusercontent.com/kurmanto/unify-brand/main/assets/sig';
 
-// Add copy buttons to each variant
+// Add copy button groups to each variant
 document.querySelectorAll('.variant').forEach(v => {
-  const btn = document.createElement('button');
-  btn.className = 'copy-btn';
-  btn.textContent = 'Copy';
-  btn.addEventListener('click', () => copySignature(v, btn));
-  v.appendChild(btn);
+  const group = document.createElement('div');
+  group.className = 'copy-group';
+
+  const btnPng = document.createElement('button');
+  btnPng.className = 'copy-btn';
+  btnPng.textContent = 'Copy PNG';
+  btnPng.addEventListener('click', () => copySignature(v, btnPng, 'png'));
+
+  const btnUrl = document.createElement('button');
+  btnUrl.className = 'copy-btn';
+  btnUrl.textContent = 'Copy URL';
+  btnUrl.addEventListener('click', () => copySignature(v, btnUrl, 'url'));
+
+  group.appendChild(btnPng);
+  group.appendChild(btnUrl);
+  v.appendChild(group);
 });
 
 // Auto-detect logo type from SVG content
@@ -711,19 +726,48 @@ function getLogoType(svgEl) {
   return 'atom-white';
 }
 
-function copySignature(variant, btn) {
+// Convert SVG to inline base64 PNG data URL
+function svgToPngDataUrl(svgEl) {
+  return new Promise(resolve => {
+    const svgData = new XMLSerializer().serializeToString(svgEl);
+    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+    const img = new Image();
+    const s = 2;
+    const w = svgEl.getAttribute('width') || 32;
+    const h = svgEl.getAttribute('height') || 32;
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = w * s;
+      canvas.height = h * s;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w * s, h * s);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL('image/png'));
+    };
+    img.src = url;
+  });
+}
+
+async function copySignature(variant, btn, mode) {
   const frame = variant.querySelector('.sig-frame');
   const clone = frame.cloneNode(true);
 
-  // Replace SVGs with hosted <img> tags for email client compatibility
+  // Replace SVGs with <img> tags
   const svgs = frame.querySelectorAll('svg');
   const cloneSvgs = clone.querySelectorAll('svg');
   for (let i = 0; i < svgs.length; i++) {
-    const type = getLogoType(svgs[i]);
     const w = svgs[i].getAttribute('width') || 32;
     const h = svgs[i].getAttribute('height') || 32;
     const img = document.createElement('img');
-    img.src = `${LOGO_BASE_URL}/${type}.png`;
+
+    if (mode === 'png') {
+      img.src = await svgToPngDataUrl(svgs[i]);
+    } else {
+      const type = getLogoType(svgs[i]);
+      img.src = `${LOGO_BASE_URL}/${type}.png`;
+    }
+
     img.width = w;
     img.height = h;
     img.style.display = svgs[i].style.display || 'inline';
@@ -735,7 +779,7 @@ function copySignature(variant, btn) {
   clone.style.position = 'fixed';
   clone.style.left = '-9999px';
   clone.style.top = '0';
-  clone.className = frame.className; // preserve light/dark styles
+  clone.className = frame.className;
   document.body.appendChild(clone);
 
   const range = document.createRange();
@@ -747,9 +791,10 @@ function copySignature(variant, btn) {
   sel.removeAllRanges();
   document.body.removeChild(clone);
 
+  const label = mode === 'png' ? 'Copy PNG' : 'Copy URL';
   btn.textContent = 'Copied!';
   btn.classList.add('copied');
-  setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  setTimeout(() => { btn.textContent = label; btn.classList.remove('copied'); }, 2000);
 }
 </script>
 
