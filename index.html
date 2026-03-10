@@ -24,7 +24,7 @@
   "description": "Software engineering studio. Custom software, product development, and AI/ML solutions.",
   "contactPoint": {
     "@type": "ContactPoint",
-    "email": "hello@unify-labs.dev",
+    "email": "tomer@unify-labs.dev",
     "contactType": "customer service"
   },
   "sameAs": [
@@ -242,7 +242,14 @@
   /* ─── Mobile: centered text, uniform dark overlay ─── */
   @media (max-width: 768px) {
     .landing-veil {
-      background: rgba(6,6,6,0.75);
+      background: linear-gradient(
+        to bottom,
+        rgba(6,6,6,0.92) 0%,
+        rgba(6,6,6,0.75) 30%,
+        rgba(6,6,6,0.40) 48%,
+        rgba(6,6,6,0.12) 62%,
+        transparent 80%
+      );
     }
 
     .landing-text {
@@ -250,14 +257,27 @@
       padding: 32px 24px;
       align-items: center;
       text-align: center;
+      gap: 20px;
+      justify-content: flex-start;
+      padding-top: 15vh;
     }
 
     .landing-brand {
       align-items: center;
     }
 
+    .landing-brand h1 {
+      font-size: clamp(2rem, 8vw, 2.8rem);
+    }
+
+    .landing-tagline {
+      font-size: clamp(0.9rem, 3.5vw, 1.1rem);
+    }
+
     .landing-cta {
       align-self: center;
+      font-size: 14px;
+      padding: 14px 28px;
     }
 
     .landing-footer {
@@ -268,10 +288,34 @@
       width: 44px;
       height: 44px;
     }
+  }
+
+  /* ─── Small phones ─── */
+  @media (max-width: 375px) {
+    .landing-text {
+      padding: 24px 16px;
+      padding-top: 12vh;
+    }
+
+    .landing-brand img {
+      width: 36px;
+      height: 36px;
+    }
+
+    .landing-brand h1 {
+      font-size: clamp(1.8rem, 8vw, 2.5rem);
+    }
+
+    .landing-tagline {
+      font-size: 0.85rem;
+    }
 
     .landing-cta {
-      font-size: 13px;
-      padding: 10px 20px;
+      padding: 12px 24px;
+    }
+
+    .landing-footer {
+      font-size: 11px;
     }
   }
 </style>
@@ -286,13 +330,13 @@
   <div class="landing-text">
     <div class="landing-brand">
       <img src="assets/unify-logo-white.svg" alt="Unify Labs" width="56" height="56">
-      <h1>unify <span>/ Labs</span></h1>
+      <h1>unify <span>Labs</span></h1>
     </div>
     <p class="landing-tagline">Engineering software that matters</p>
     <div class="landing-status">Coming Soon</div>
-    <a class="landing-cta" href="mailto:hello@unify-labs.dev">
+    <a class="landing-cta" href="mailto:tomer@unify-labs.dev">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4L12 13 2 4"/></svg>
-      hello@unify-labs.dev
+      tomer@unify-labs.dev
     </a>
     <footer class="landing-footer">&copy; 2026 Unify Labs</footer>
   </div>
