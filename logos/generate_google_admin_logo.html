@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Google Admin Logo Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: monospace; padding: 40px; background: #1a1a1a; color: #aaa; }
+    h3 { color: #eee; }
+    .variant { margin: 32px 0; }
+    .variant-title { font-size: 12px; color: #888; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 2px; }
+    canvas { margin: 8px 0; display: block; }
+    /* checkerboard to show transparency */
+    .transparent-bg {
+      background-image: repeating-conic-gradient(#2a2a2a 0% 25%, #222 0% 50%);
+      background-size: 16px 16px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+    a { color: #fff; display: inline-block; margin-top: 8px; padding: 6px 16px; background: #222; border: 1px solid #444; border-radius: 6px; text-decoration: none; font-size: 12px; }
+    a:hover { background: #333; }
+    .preview-row { display: flex; gap: 24px; align-items: flex-start; margin-top: 12px; }
+    .preview-box { text-align: center; }
+    .preview-box img { border-radius: 4px; }
+    .preview-label { font-size: 10px; color: #555; margin-top: 4px; }
+    .on-white { background: #fff; padding: 8px; border-radius: 6px; display: inline-block; }
+    .on-dark { background: #0a0a0a; padding: 8px; border-radius: 6px; display: inline-block; }
+    .on-gmail { background: #f6f8fc; padding: 8px; border-radius: 6px; display: inline-block; }
+  </style>
+</head>
+<body>
+  <h3>Google Admin / Email Logo — 320×132</h3>
+  <p style="font-size:12px;color:#555;">Transparent background — works in any pill/avatar context</p>
+
+  <div id="variants"></div>
+
+  <script>
+    document.fonts.ready.then(() => {
+      const W = 320, H = 132, dpr = 2;
+
+      const variants = [
+        {
+          name: 'Emerald Gradient',
+          file: 'unify-labs-google-emerald',
+          atomColors: (ctx, cx, cy) => {
+            const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, 28);
+            g.addColorStop(0, '#5eead4');
+            g.addColorStop(1, '#2a6b45');
+            return g;
+          },
+          ringAlphas: [1, 0.6, 0.35],
+          sphereColor: '#5eead4',
+          textMain: '#e0fff5',
+          textSub: 'rgba(94,234,212,0.55)',
+        },
+        {
+          name: 'Silver',
+          file: 'unify-labs-google-silver',
+          atomColors: () => '#b0b0b0',
+          ringAlphas: [0.8, 0.5, 0.28],
+          sphereColor: '#d4d4d4',
+          textMain: '#d4d4d4',
+          textSub: 'rgba(180,180,180,0.5)',
+        },
+        {
+          name: 'Deep Green',
+          file: 'unify-labs-google-green',
+          atomColors: () => '#2a6b45',
+          ringAlphas: [0.9, 0.55, 0.3],
+          sphereColor: '#34d399',
+          textMain: '#34d399',
+          textSub: 'rgba(52,211,153,0.45)',
+        },
+        {
+          name: 'White (for dark bg)',
+          file: 'unify-labs-google-white',
+          atomColors: () => '#ffffff',
+          ringAlphas: [0.9, 0.55, 0.3],
+          sphereColor: '#ffffff',
+          textMain: '#ffffff',
+          textSub: 'rgba(255,255,255,0.5)',
+        },
+        {
+          name: 'Charcoal (for light bg)',
+          file: 'unify-labs-google-charcoal',
+          atomColors: () => '#333333',
+          ringAlphas: [0.85, 0.5, 0.28],
+          sphereColor: '#222222',
+          textMain: '#222222',
+          textSub: 'rgba(34,34,34,0.45)',
+        },
+      ];
+
+      const container = document.getElementById('variants');
+
+      variants.forEach(v => {
+        const canvas = document.createElement('canvas');
+        canvas.width = W * dpr;
+        canvas.height = H * dpr;
+        canvas.style.width = W + 'px';
+        canvas.style.height = H + 'px';
+        const ctx = canvas.getContext('2d');
+
+        // Transparent — no background fill
+        ctx.save();
+        ctx.scale(dpr, dpr);
+
+        // --- Atom icon ---
+        const iconCx = 72, iconCy = H / 2, sc = 1.4;
+        ctx.save();
+        ctx.translate(iconCx, iconCy);
+        ctx.scale(sc, sc);
+
+        // Sphere
+        ctx.fillStyle = v.sphereColor;
+        ctx.beginPath();
+        ctx.arc(0, 0, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Rings
+        const rings = [
+          { rx: 16, ry: 5, rot: -30, width: 1.8 },
+          { rx: 16, ry: 6.5, rot: 40, width: 1.5 },
+          { rx: 16, ry: 7, rot: 90, width: 1.5 },
+        ];
+        const baseColor = v.atomColors(ctx, 0, 0);
+        rings.forEach((r, i) => {
+          ctx.save();
+          ctx.rotate(r.rot * Math.PI / 180);
+          if (typeof baseColor === 'string') {
+            // Extract rgb and apply alpha
+            ctx.strokeStyle = baseColor;
+            ctx.globalAlpha = v.ringAlphas[i];
+          } else {
+            ctx.strokeStyle = baseColor;
+            ctx.globalAlpha = v.ringAlphas[i];
+          }
+          ctx.lineWidth = r.width;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, r.rx, r.ry, 0, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        });
+        ctx.restore();
+
+        // --- Text ---
+        const textX = 126, textY = H / 2;
+        ctx.fillStyle = v.textMain;
+        ctx.font = '600 28px Outfit, sans-serif';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('UNIFY', textX, textY - 1);
+        const uw = ctx.measureText('UNIFY').width;
+
+        ctx.fillStyle = v.textSub;
+        ctx.font = '400 28px Outfit, sans-serif';
+        ctx.fillText('LABS', textX + uw + 10, textY - 1);
+
+        ctx.restore();
+
+        // --- Build variant section ---
+        const section = document.createElement('div');
+        section.className = 'variant';
+        section.innerHTML = `<div class="variant-title">${v.name}</div>`;
+
+        const wrap = document.createElement('div');
+        wrap.className = 'transparent-bg';
+        wrap.appendChild(canvas);
+        section.appendChild(wrap);
+
+        // Download
+        const dataUrl = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = v.file + '-320x132.png';
+        link.textContent = 'Download';
+        section.appendChild(link);
+
+        // Previews on different backgrounds
+        const row = document.createElement('div');
+        row.className = 'preview-row';
+        [
+          { cls: 'on-white', label: 'White bg' },
+          { cls: 'on-gmail', label: 'Gmail bg' },
+          { cls: 'on-dark', label: 'Dark bg' },
+        ].forEach(p => {
+          const box = document.createElement('div');
+          box.className = 'preview-box';
+          const inner = document.createElement('div');
+          inner.className = p.cls;
+          const img = document.createElement('img');
+          img.src = dataUrl;
+          img.style.width = '200px';
+          img.style.height = (200 * H / W) + 'px';
+          inner.appendChild(img);
+          box.appendChild(inner);
+          const lbl = document.createElement('div');
+          lbl.className = 'preview-label';
+          lbl.textContent = p.label;
+          box.appendChild(lbl);
+          row.appendChild(box);
+        });
+        section.appendChild(row);
+
+        container.appendChild(section);
+      });
+    });
+  </script>
+</body>
+</html>
