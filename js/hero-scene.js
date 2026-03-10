@@ -141,6 +141,7 @@ export function initHero(container, options = {}) {
   let heroPaused = false;
   let frameCount = 0;
   const ATOM_BASE_Y = 0.75;
+  const ATOM_OFFSET_X = options.atomOffsetX ?? 0;
   const BASE_BLOOM = 0.55;
 
   const width = () => container.clientWidth;
@@ -1466,6 +1467,7 @@ export function initHero(container, options = {}) {
     const shrink = smoothstep(0.15, 0.75, scrollFraction);
     const easedShrink = shrink * shrink; // power2.in
     atomGroup.scale.setScalar(1.0 - 0.85 * easedShrink);
+    atomGroup.position.x = ATOM_OFFSET_X;
     atomGroup.position.y = ATOM_BASE_Y + scrollFraction * 0.3; // gentle drift up
 
     // Gradual gas cloud fade
