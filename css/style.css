@@ -22,7 +22,7 @@
 }
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+html { -webkit-font-smoothing: antialiased; }
 body {
   font-family: var(--font-body);
   background: var(--bg);
@@ -43,6 +43,8 @@ a { color: inherit; text-decoration: none; }
 #bg-canvas canvas {
   display: block;
   width: 100%; height: 100%;
+  will-change: transform, opacity;
+  transform: translateZ(0);
 }
 
 #page-overlay {
@@ -50,14 +52,20 @@ a { color: inherit; text-decoration: none; }
   inset: 0;
   z-index: 1;
   background: rgb(6 6 6 / var(--overlay-alpha, 0));
-  -webkit-backdrop-filter: blur(var(--overlay-blur, 0px));
-  backdrop-filter: blur(var(--overlay-blur, 0px));
+  -webkit-backdrop-filter: blur(0px);
+  backdrop-filter: blur(0px);
   pointer-events: none;
-  will-change: backdrop-filter;
+  will-change: opacity;
+  transition: backdrop-filter 0.6s ease, -webkit-backdrop-filter 0.6s ease;
   -webkit-mask-image: linear-gradient(to right,
     transparent 0%, rgba(0,0,0,0.5) 8%, black 18%, black 82%, rgba(0,0,0,0.5) 92%, transparent 100%);
   mask-image: linear-gradient(to right,
     transparent 0%, rgba(0,0,0,0.5) 8%, black 18%, black 82%, rgba(0,0,0,0.5) 92%, transparent 100%);
+}
+
+#page-overlay.blurred {
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
 }
 
 img { display: block; max-width: 100%; }
@@ -237,6 +245,7 @@ input, textarea { font: inherit; color: inherit; }
   padding-bottom: 22vh;
   pointer-events: none;
   z-index: 10;
+  will-change: transform, opacity;
 }
 
 .hero-title {

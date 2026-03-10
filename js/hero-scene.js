@@ -136,6 +136,9 @@ export function initHero(container, options = {}) {
   let paused = false;
   let destroyed = false;
   let scrollOffset = 0;
+
+  // IO-based pause: stop rAF entirely when hero offscreen
+  let heroPaused = false;
   let frameCount = 0;
   const ATOM_BASE_Y = 0.75;
   const BASE_BLOOM = 0.55;
@@ -211,6 +214,7 @@ export function initHero(container, options = {}) {
       uColor2: { value: palette.color2.clone() },
       uColor3: { value: palette.color3.clone() },
       uColor4: { value: palette.color4.clone() },
+      uFade: { value: 1.0 },
     },
     vertexShader: `
       ${noiseGLSL}
@@ -238,6 +242,7 @@ export function initHero(container, options = {}) {
     fragmentShader: `
       ${noiseGLSL}
       uniform float uTime;
+      uniform float uFade;
       uniform vec3 uColor0;
       uniform vec3 uColor1;
       uniform vec3 uColor2;
@@ -273,7 +278,7 @@ export function initHero(container, options = {}) {
         float pulse = 0.85 + 0.15 * sin(uTime * 0.8);
         float intensity = (1.2 + fresnel * 1.5) * pulse;
 
-        gl_FragColor = vec4(color * intensity, 0.9 + fresnel * 0.1);
+        gl_FragColor = vec4(color * intensity, (0.9 + fresnel * 0.1) * uFade);
       }
     `,
     transparent: true,
@@ -341,6 +346,9 @@ export function initHero(container, options = {}) {
   sparkGeo.setAttribute('aOpacity', new THREE.BufferAttribute(sparkOpacities, 1));
 
   const sparkMat = new THREE.ShaderMaterial({
+    uniforms: {
+      uFade: { value: 1.0 },
+    },
     vertexShader: `
       attribute float aSize;
       attribute float aOpacity;
@@ -355,13 +363,14 @@ export function initHero(container, options = {}) {
       }
     `,
     fragmentShader: `
+      uniform float uFade;
       varying vec3 vColor;
       varying float vOpacity;
       void main() {
         float d = length(gl_PointCoord - vec2(0.5));
         if (d > 0.5) discard;
         float falloff = 1.0 - smoothstep(0.0, 0.5, d);
-        gl_FragColor = vec4(vColor * falloff, vOpacity * falloff);
+        gl_FragColor = vec4(vColor * falloff, vOpacity * falloff * uFade);
       }
     `,
     vertexColors: true,
@@ -400,6 +409,7 @@ export function initHero(container, options = {}) {
         uBaseOpacity: { value: def.baseOpacity },
         uRingColor: { value: palette.ringColor.clone() },
         uPhase: { value: def.phase },
+        uFade: { value: 1.0 },
       },
       vertexShader: `
         varying vec2 vUv;
@@ -410,6 +420,7 @@ export function initHero(container, options = {}) {
       `,
       fragmentShader: `
         uniform float uTime;
+        uniform float uFade;
         uniform float uBaseOpacity;
         uniform vec3 uRingColor;
         uniform float uPhase;
@@ -426,7 +437,7 @@ export function initHero(container, options = {}) {
 
           vec3 color = mix(vec3(1.0), uRingColor, 0.2 + 0.15 * (pulse1 + pulse2));
 
-          gl_FragColor = vec4(color * brightness, brightness);
+          gl_FragColor = vec4(color * brightness, brightness * uFade);
         }
       `,
       transparent: true,
@@ -1083,6 +1094,7 @@ export function initHero(container, options = {}) {
   const pulseMat = new THREE.ShaderMaterial({
     uniforms: {
       uTime: { value: 0 },
+      uFade: { value: 1.0 },
       uGlowColor: { value: new THREE.Vector3(palette.glowColor.r, palette.glowColor.g, palette.glowColor.b) },
       uRingColor: { value: palette.ringColor.clone() },
     },
@@ -1095,6 +1107,7 @@ export function initHero(container, options = {}) {
     `,
     fragmentShader: `
       uniform float uTime;
+      uniform float uFade;
       uniform vec3 uGlowColor;
       uniform vec3 uRingColor;
       varying vec2 vUv;
@@ -1119,7 +1132,7 @@ export function initHero(container, options = {}) {
         }
 
         if (totalAlpha < 0.001) discard;
-        gl_FragColor = vec4(totalColor, totalAlpha);
+        gl_FragColor = vec4(totalColor, totalAlpha * uFade);
       }
     `,
     transparent: true,
@@ -1448,7 +1461,7 @@ export function initHero(container, options = {}) {
     // Auto-rotation
     atomGroup.rotation.y = t * 0.08 + mouse.x * 0.15;
     atomGroup.rotation.x = 0;
-    atomGroup.position.y = ATOM_BASE_Y + scrollFraction * 5.0;
+    atomGroup.position.y = ATOM_BASE_Y + scrollFraction * 2.0;
 
     // Gradual gas cloud fade — dim earlier to complement overlay
     const gasFade = 1.0 - smoothstep(0.2, 0.9, scrollFraction);
@@ -1470,23 +1483,25 @@ export function initHero(container, options = {}) {
     cometHeadPoints.visible = !pastHero || cometState.active;
 
     // Bloom fade — start dimming earlier
-    bloomPass.strength = scrollFraction > 0.7
-      ? BASE_BLOOM * (1.0 - smoothstep(0.7, 1.2, scrollFraction))
+    bloomPass.strength = scrollFraction > 0.6
+      ? BASE_BLOOM * (1.0 - smoothstep(0.6, 1.0, scrollFraction))
       : BASE_BLOOM;
 
     // Chromatic aberration → passthrough when past hero
     chromaticPass.uniforms.uIntensity.value = scrollFraction >= 1.0 ? 0 : 0.003;
 
     // Reduce pixel ratio when deeply scrolled (stars behind dark overlays)
-    const targetPR = scrollFraction > 1.5 ? 1 : Math.min(devicePixelRatio, maxPixelRatio);
+    const targetPR = scrollFraction > 1.2 ? 1 : Math.min(devicePixelRatio, maxPixelRatio);
     if (renderer.getPixelRatio() !== targetPR) renderer.setPixelRatio(targetPR);
 
-    // Performance gate
-    const atomVisible = scrollFraction < 1.5;
+    // Sharp atom fade-out (0.85–1.05 scroll range)
+    const atomFade = 1.0 - smoothstep(0.85, 1.05, scrollFraction);
+    const atomVisible = atomFade > 0.001;
 
     // Frame skip when past hero — render at ~30fps
     frameCount++;
     if (pastHero && frameCount % 2 !== 0) return;
+
 
     if (atomVisible) {
       // Nucleus breathing
@@ -1497,6 +1512,14 @@ export function initHero(container, options = {}) {
       // Shader times
       energyMat.uniforms.uTime.value = t % 1000.0;
       pulseMat.uniforms.uTime.value = t % 1000.0;
+      pulseMat.uniforms.uFade.value = atomFade;
+
+      // Drive atom fade uniforms
+      energyMat.uniforms.uFade.value = atomFade;
+      sparkMat.uniforms.uFade.value = atomFade;
+      outerGlow.material.opacity = 0.04 * atomFade;
+      for (const rm of ringMaterials) rm.uniforms.uFade.value = atomFade;
+      for (const group of orbitParticleGroups) group.points.material.opacity = 0.9 * atomFade;
 
       atomGroup.updateMatrixWorld();
       pulsePlane.position.setFromMatrixPosition(atomGroup.matrixWorld);
@@ -1564,7 +1587,7 @@ export function initHero(container, options = {}) {
 
     // Star layers with scroll parallax
     const scrollParallaxY = -(scrollOffset / heroH);
-    const parallaxRates = [0.05, 0.10, 0.18]; // bg, mid, feature
+    const parallaxRates = [0.03, 0.06, 0.12]; // bg, mid, feature
     for (let li = 0; li < starLayers.length; li++) {
       const layer = starLayers[li];
       layer.mat.uniforms.uTime.value = t % 1000.0;
@@ -1579,7 +1602,7 @@ export function initHero(container, options = {}) {
 
     cosmicDust.mat.uniforms.uTime.value = t % 1000.0;
     cosmicDust.points.position.x = mouse.x * 0.08;
-    cosmicDust.points.position.y = mouse.y * 0.08 + scrollParallaxY * 0.20;
+    cosmicDust.points.position.y = mouse.y * 0.08 + scrollParallaxY * 0.12;
 
     // Flare state machine
     const fs = flareState;
@@ -1740,6 +1763,27 @@ export function initHero(container, options = {}) {
 
   animate();
 
+  // ─── IntersectionObserver: fully pause rAF when hero offscreen ──────
+  const heroSection = document.getElementById('hero');
+  if (heroSection) {
+    const heroObserver = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        const offscreen = entry.intersectionRatio === 0;
+        if (offscreen && !heroPaused) {
+          heroPaused = true;
+          if (animId) { cancelAnimationFrame(animId); animId = null; }
+          clock.stop();
+        } else if (!offscreen && heroPaused) {
+          heroPaused = false;
+          clock.start();
+          clock.getDelta(); // clear accumulated delta
+          animId = requestAnimationFrame(animate);
+        }
+      }
+    }, { threshold: [0] });
+    heroObserver.observe(heroSection);
+  }
+
   // ─── Resize via ResizeObserver ──────────────────────────────────────
   const ro = new ResizeObserver(() => {
     if (destroyed) return;
@@ -1765,6 +1809,7 @@ export function initHero(container, options = {}) {
       paused = false;
       clock.start();
     },
+    isHeroPaused() { return heroPaused; },
     destroy() {
       destroyed = true;
       if (animId) cancelAnimationFrame(animId);

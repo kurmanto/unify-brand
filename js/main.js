@@ -78,24 +78,31 @@ gsap.to('#scroll-cue', {
 // Single overlay darkening + blur, driven by scroll
 const overlay = document.getElementById('page-overlay');
 if (overlay) {
-  // Hero scroll: ramp from 0 → 0.75 opacity, 0 → 16px blur
+  // Hero scroll: ramp opacity only (blur handled by CSS transition)
   gsap.to(overlay, {
-    '--overlay-alpha': 0.75,
-    '--overlay-blur': '16px',
+    '--overlay-alpha': 0.82,
     ease: 'power2.in',
     scrollTrigger: {
       trigger: '#hero',
-      start: '20% top',
+      start: '40% top',
       end: '100% top',
       scrub: true,
     },
   });
 
+  // Toggle blur class at threshold — single transition, not per-frame
+  ScrollTrigger.create({
+    trigger: '#hero',
+    start: '60% top',
+    onEnter: () => overlay.classList.add('blurred'),
+    onLeaveBack: () => overlay.classList.remove('blurred'),
+  });
+
   // Post-hero: slow ramp 0.75 → 0.88, starts at hero bottom → through work
   gsap.fromTo(overlay,
-    { '--overlay-alpha': 0.75 },
+    { '--overlay-alpha': 0.82 },
     {
-      '--overlay-alpha': 0.88,
+      '--overlay-alpha': 0.92,
       immediateRender: false,
       ease: 'none',
       scrollTrigger: {
