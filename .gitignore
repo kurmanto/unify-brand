@@ -1,7 +1,6 @@
 .DS_Store
 .playwright-mcp/
 
-# Debug & verification screenshots
-debug-*.png
-verify-*.png
+# Screenshots & test PNGs (root only — assets/ PNGs stay tracked)
+*.png
 .vercel
