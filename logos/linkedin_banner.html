@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unify Labs — LinkedIn Banner Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #0a0a0a;
+    color: #fafafa;
+    padding: 60px 24px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page-header {
+    max-width: 1600px;
+    margin: 0 auto 48px;
+    text-align: center;
+  }
+  .page-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+  .page-sub {
+    font-size: 13px;
+    color: rgba(255,255,255,0.35);
+  }
+  .banner-wrap {
+    max-width: 1600px;
+    margin: 0 auto 32px;
+    position: relative;
+  }
+  .banner-frame {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.06);
+    position: relative;
+    aspect-ratio: 1584 / 396;
+  }
+  .banner-frame canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  /* Text overlay for live preview (CSS-positioned, crisp on screen) */
+  .text-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 5%;
+  }
+  .text-block {
+    text-align: right;
+  }
+  .text-line1 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 300;
+    font-size: clamp(16px, 1.8vw, 28px);
+    color: rgba(255,255,255,0.7);
+    line-height: 1.4;
+  }
+  .text-line2 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 500;
+    font-size: clamp(16px, 1.8vw, 28px);
+    color: rgba(255,255,255,0.9);
+    line-height: 1.4;
+  }
+  .text-accent-line {
+    width: 220px;
+    height: 1px;
+    background: rgba(42,107,69,0.4);
+    margin: 14px 0 10px auto;
+  }
+  .text-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: clamp(8px, 0.7vw, 11px);
+    color: rgba(42,107,69,0.5);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  /* Profile photo overlay guide */
+  .photo-guide {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 35.86%;
+    height: 66.67%;
+    border: 2px dashed rgba(255,255,255,0.15);
+    border-radius: 0;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: rgba(255,255,255,0.2);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .photo-guide.hidden { display: none; }
+  .controls {
+    max-width: 1600px;
+    margin: 0 auto;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.6);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn:hover {
+    background: rgba(42,107,69,0.15);
+    border-color: rgba(42,107,69,0.3);
+    color: #2a6b45;
+  }
+  .btn.primary {
+    background: rgba(42,107,69,0.2);
+    border-color: rgba(42,107,69,0.4);
+    color: #5cb97a;
+  }
+  .btn.primary:hover {
+    background: rgba(42,107,69,0.3);
+    border-color: rgba(42,107,69,0.5);
+    color: #7fddaa;
+  }
+  .spacer { flex: 1; }
+  .dimensions {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: rgba(255,255,255,0.2);
+    letter-spacing: 1px;
+  }
+  .palette-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1 class="page-title">LinkedIn Banner</h1>
+  <p class="page-sub">1584 &times; 396px — Three.js + Bloom</p>
+</div>
+
+<div class="banner-wrap">
+  <div class="banner-frame" id="banner-container">
+    <!-- Three.js canvas injected here -->
+    <div class="text-overlay" id="text-overlay">
+      <div class="text-block">
+        <div class="text-line1">Engineering software</div>
+        <div class="text-line2">that matters.</div>
+        <div class="text-accent-line"></div>
+        <div class="text-badge">UNIFY LABS</div>
+      </div>
+    </div>
+    <div class="photo-guide" id="photo-guide">Profile photo zone</div>
+  </div>
+</div>
+
+<canvas id="export-canvas" width="1584" height="396" style="display:none;"></canvas>
+
+<div class="controls">
+  <button class="btn primary" id="export-btn">Export PNG</button>
+  <button class="btn" id="toggle-guide">Toggle photo guide</button>
+  <button class="btn" id="palette-btn">Next palette</button>
+  <button class="btn" id="redraw-btn">Redraw</button>
+  <span class="spacer"></span>
+  <span class="palette-name" id="palette-label">Deep Green</span>
+  <span class="dimensions">1584 &times; 396</span>
+</div>
+
+<script type="importmap">
+{ "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+
+const W = 1584, H = 396;
+
+// ─── Simplex 3D noise GLSL — Ashima Arts ─────────────────────────────
+const noiseGLSL = `
+  vec4 permute(vec4 x){ return mod(((x*34.0)+1.0)*x, 289.0); }
+  vec4 taylorInvSqrt(vec4 r){ return 1.79284291400159 - 0.85373472095314 * r; }
+
+  float snoise(vec3 v){
+    const vec2 C = vec2(1.0/6.0, 1.0/3.0);
+    const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+    vec3 i  = floor(v + dot(v, C.yyy));
+    vec3 x0 = v - i + dot(i, C.xxx);
+    vec3 g = step(x0.yzx, x0.xyz);
+    vec3 l = 1.0 - g;
+    vec3 i1 = min(g.xyz, l.zxy);
+    vec3 i2 = max(g.xyz, l.zxy);
+    vec3 x1 = x0 - i1 + C.xxx;
+    vec3 x2 = x0 - i2 + C.yyy;
+    vec3 x3 = x0 - D.yyy;
+    i = mod(i, 289.0);
+    vec4 p = permute(permute(permute(
+      i.z + vec4(0.0, i1.z, i2.z, 1.0))
+      + i.y + vec4(0.0, i1.y, i2.y, 1.0))
+      + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+    float n_ = 1.0/7.0;
+    vec3 ns = n_ * D.wyz - D.xzx;
+    vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+    vec4 x_ = floor(j * ns.z);
+    vec4 y_ = floor(j - 7.0 * x_);
+    vec4 x = x_ * ns.x + ns.yyyy;
+    vec4 y = y_ * ns.x + ns.yyyy;
+    vec4 h = 1.0 - abs(x) - abs(y);
+    vec4 b0 = vec4(x.xy, y.xy);
+    vec4 b1 = vec4(x.zw, y.zw);
+    vec4 s0 = floor(b0)*2.0 + 1.0;
+    vec4 s1 = floor(b1)*2.0 + 1.0;
+    vec4 sh = -step(h, vec4(0.0));
+    vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy;
+    vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww;
+    vec3 p0 = vec3(a0.xy, h.x);
+    vec3 p1 = vec3(a0.zw, h.y);
+    vec3 p2 = vec3(a1.xy, h.z);
+    vec3 p3 = vec3(a1.zw, h.w);
+    vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2,p2), dot(p3,p3)));
+    p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+    vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+    m = m * m;
+    return 42.0 * dot(m*m, vec4(dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3)));
+  }
+`;
+
+const hashGLSL = `
+  float hash(float n) { return fract(sin(n) * 43758.5453123); }
+  float hash2(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }
+`;
+
+// ─── Star Helper Functions ───────────────────────────────────────────
+function blackbodyColor(tempK) {
+  const t = tempK / 100.0;
+  let r, g, b;
+  if (t <= 66) {
+    r = 255;
+    g = 99.4708025861 * Math.log(t) - 161.1195681661;
+    b = t <= 19 ? 0 : 138.5177312231 * Math.log(t - 10) - 305.0447927307;
+  } else {
+    r = 329.698727446 * Math.pow(t - 60, -0.1332047592);
+    g = 288.1221695283 * Math.pow(t - 60, -0.0755148492);
+    b = 255;
+  }
+  return [
+    Math.min(Math.max(r, 0), 255) / 255,
+    Math.min(Math.max(g, 0), 255) / 255,
+    Math.min(Math.max(b, 0), 255) / 255,
+  ];
+}
+
+function powerLawBrightness(exp) {
+  return Math.pow(Math.random(), exp);
+}
+
+function randomStarTemperature() {
+  const roll = Math.random();
+  if (roll < 0.05) return 20000 + Math.random() * 15000;
+  if (roll < 0.15) return 8000 + Math.random() * 4000;
+  if (roll < 0.45) return 5000 + Math.random() * 1500;
+  if (roll < 0.80) return 3500 + Math.random() * 1500;
+  return 2500 + Math.random() * 1000;
+}
+
+function tintStarColor(bb, tint, amt) {
+  return [
+    bb[0] * (1 - amt) + tint.r * amt,
+    bb[1] * (1 - amt) + tint.g * amt,
+    bb[2] * (1 - amt) + tint.b * amt,
+  ];
+}
+
+// ─── Palettes ─────────────────────────────────────────────────────────
+const palettes = {
+  deepGreen: {
+    color0: new THREE.Vector3(1.0, 0.97, 0.92),
+    color1: new THREE.Vector3(0.6, 0.95, 0.7),
+    color2: new THREE.Vector3(0.16, 0.55, 0.35),
+    color3: new THREE.Vector3(0.15, 0.65, 0.6),
+    color4: new THREE.Vector3(0.08, 0.3, 0.15),
+    glowColor:    new THREE.Color(0.3, 0.8, 0.45),
+    sparkColor:   new THREE.Color(0.4, 1.0, 0.55),
+    ringColor:    new THREE.Vector3(0.5, 1.0, 0.7),
+    nebulaColor1: new THREE.Color(0.1, 0.4, 0.25),
+    nebulaColor2: new THREE.Color(0.08, 0.25, 0.35),
+    starTint:     new THREE.Color(0.7, 1.0, 0.85),
+    galaxyCore:   new THREE.Color(0.15, 0.5, 0.3),
+    galaxyArm1:   new THREE.Color(0.08, 0.35, 0.2),
+    galaxyArm2:   new THREE.Color(0.05, 0.2, 0.3),
+    nebulaVivid1: new THREE.Color(0.05, 0.85, 0.70),
+    nebulaVivid2: new THREE.Color(0.10, 0.70, 0.95),
+    nebulaVivid3: new THREE.Color(0.20, 0.95, 0.40),
+    nebulaVivid4: new THREE.Color(0.02, 0.45, 0.55),
+    bgColor: 0x060606,
+    textShadow: 'rgba(42,107,69, 0.3)',
+  },
+  warmSunset: {
+    color0: new THREE.Vector3(1.0, 0.95, 0.85),
+    color1: new THREE.Vector3(1.0, 0.78, 0.35),
+    color2: new THREE.Vector3(0.88, 0.48, 0.29),
+    color3: new THREE.Vector3(0.85, 0.3, 0.35),
+    color4: new THREE.Vector3(0.55, 0.15, 0.3),
+    glowColor:    new THREE.Color(0.9, 0.45, 0.3),
+    sparkColor:   new THREE.Color(1.0, 0.65, 0.35),
+    ringColor:    new THREE.Vector3(1.0, 0.7, 0.45),
+    nebulaColor1: new THREE.Color(0.4, 0.15, 0.1),
+    nebulaColor2: new THREE.Color(0.35, 0.2, 0.05),
+    starTint:     new THREE.Color(1.0, 0.9, 0.75),
+    galaxyCore:   new THREE.Color(0.5, 0.25, 0.15),
+    galaxyArm1:   new THREE.Color(0.4, 0.15, 0.1),
+    galaxyArm2:   new THREE.Color(0.3, 0.1, 0.2),
+    nebulaVivid1: new THREE.Color(0.95, 0.15, 0.35),
+    nebulaVivid2: new THREE.Color(0.85, 0.10, 0.60),
+    nebulaVivid3: new THREE.Color(1.00, 0.65, 0.10),
+    nebulaVivid4: new THREE.Color(0.30, 0.05, 0.15),
+    bgColor: 0x060606,
+    textShadow: 'rgba(224,122,75, 0.3)',
+  },
+  aurora: {
+    color0: new THREE.Vector3(0.95, 1.0, 0.98),
+    color1: new THREE.Vector3(0.2, 0.95, 0.8),
+    color2: new THREE.Vector3(0.1, 0.75, 0.55),
+    color3: new THREE.Vector3(0.6, 0.2, 0.7),
+    color4: new THREE.Vector3(0.04, 0.2, 0.35),
+    glowColor:    new THREE.Color(0.2, 0.9, 0.7),
+    sparkColor:   new THREE.Color(0.3, 1.0, 0.85),
+    ringColor:    new THREE.Vector3(0.3, 1.0, 0.8),
+    nebulaColor1: new THREE.Color(0.05, 0.4, 0.35),
+    nebulaColor2: new THREE.Color(0.3, 0.1, 0.4),
+    starTint:     new THREE.Color(0.6, 1.0, 0.9),
+    galaxyCore:   new THREE.Color(0.1, 0.5, 0.4),
+    galaxyArm1:   new THREE.Color(0.05, 0.3, 0.35),
+    galaxyArm2:   new THREE.Color(0.2, 0.1, 0.35),
+    nebulaVivid1: new THREE.Color(0.0, 0.95, 0.75),
+    nebulaVivid2: new THREE.Color(0.15, 0.70, 1.0),
+    nebulaVivid3: new THREE.Color(0.7, 0.15, 0.85),
+    nebulaVivid4: new THREE.Color(0.03, 0.15, 0.25),
+    bgColor: 0x060606,
+    textShadow: 'rgba(32, 230, 179, 0.3)',
+  },
+  volcanic: {
+    color0: new THREE.Vector3(1.0, 0.95, 0.7),
+    color1: new THREE.Vector3(1.0, 0.7, 0.15),
+    color2: new THREE.Vector3(0.95, 0.35, 0.08),
+    color3: new THREE.Vector3(0.8, 0.12, 0.05),
+    color4: new THREE.Vector3(0.35, 0.05, 0.02),
+    glowColor:    new THREE.Color(0.95, 0.4, 0.1),
+    sparkColor:   new THREE.Color(1.0, 0.6, 0.15),
+    ringColor:    new THREE.Vector3(1.0, 0.55, 0.2),
+    nebulaColor1: new THREE.Color(0.5, 0.1, 0.02),
+    nebulaColor2: new THREE.Color(0.3, 0.05, 0.01),
+    starTint:     new THREE.Color(1.0, 0.8, 0.5),
+    galaxyCore:   new THREE.Color(0.5, 0.2, 0.05),
+    galaxyArm1:   new THREE.Color(0.4, 0.1, 0.02),
+    galaxyArm2:   new THREE.Color(0.25, 0.05, 0.02),
+    nebulaVivid1: new THREE.Color(1.0, 0.35, 0.0),
+    nebulaVivid2: new THREE.Color(0.9, 0.15, 0.0),
+    nebulaVivid3: new THREE.Color(1.0, 0.75, 0.0),
+    nebulaVivid4: new THREE.Color(0.2, 0.03, 0.01),
+    bgColor: 0x060606,
+    textShadow: 'rgba(242, 89, 20, 0.3)',
+  },
+  reef: {
+    color0: new THREE.Vector3(1.0, 0.95, 0.92),
+    color1: new THREE.Vector3(1.0, 0.55, 0.35),
+    color2: new THREE.Vector3(0.95, 0.4, 0.25),
+    color3: new THREE.Vector3(0.1, 0.8, 0.75),
+    color4: new THREE.Vector3(0.05, 0.3, 0.4),
+    glowColor:    new THREE.Color(0.95, 0.45, 0.3),
+    sparkColor:   new THREE.Color(1.0, 0.6, 0.4),
+    ringColor:    new THREE.Vector3(0.2, 0.9, 0.8),
+    nebulaColor1: new THREE.Color(0.4, 0.15, 0.1),
+    nebulaColor2: new THREE.Color(0.05, 0.3, 0.35),
+    starTint:     new THREE.Color(0.9, 0.85, 0.9),
+    galaxyCore:   new THREE.Color(0.4, 0.2, 0.15),
+    galaxyArm1:   new THREE.Color(0.05, 0.3, 0.3),
+    galaxyArm2:   new THREE.Color(0.3, 0.1, 0.15),
+    nebulaVivid1: new THREE.Color(1.0, 0.4, 0.3),
+    nebulaVivid2: new THREE.Color(0.0, 0.9, 0.8),
+    nebulaVivid3: new THREE.Color(1.0, 0.65, 0.2),
+    nebulaVivid4: new THREE.Color(0.03, 0.15, 0.2),
+    bgColor: 0x060606,
+    textShadow: 'rgba(255, 102, 64, 0.3)',
+  },
+  royale: {
+    color0: new THREE.Vector3(1.0, 0.92, 0.95),
+    color1: new THREE.Vector3(0.9, 0.5, 0.8),
+    color2: new THREE.Vector3(0.55, 0.15, 0.65),
+    color3: new THREE.Vector3(0.9, 0.2, 0.55),
+    color4: new THREE.Vector3(0.2, 0.02, 0.25),
+    glowColor:    new THREE.Color(0.7, 0.2, 0.6),
+    sparkColor:   new THREE.Color(0.9, 0.4, 0.8),
+    ringColor:    new THREE.Vector3(0.8, 0.4, 0.9),
+    nebulaColor1: new THREE.Color(0.3, 0.05, 0.35),
+    nebulaColor2: new THREE.Color(0.4, 0.1, 0.25),
+    starTint:     new THREE.Color(0.9, 0.8, 1.0),
+    galaxyCore:   new THREE.Color(0.35, 0.1, 0.4),
+    galaxyArm1:   new THREE.Color(0.25, 0.05, 0.3),
+    galaxyArm2:   new THREE.Color(0.4, 0.08, 0.2),
+    nebulaVivid1: new THREE.Color(0.7, 0.1, 0.9),
+    nebulaVivid2: new THREE.Color(0.95, 0.15, 0.6),
+    nebulaVivid3: new THREE.Color(0.85, 0.6, 0.5),
+    nebulaVivid4: new THREE.Color(0.12, 0.02, 0.15),
+    bgColor: 0x060606,
+    textShadow: 'rgba(140, 40, 165, 0.3)',
+  },
+  gold: {
+    color0: new THREE.Vector3(1.0, 0.98, 0.88),
+    color1: new THREE.Vector3(1.0, 0.85, 0.4),
+    color2: new THREE.Vector3(0.85, 0.65, 0.15),
+    color3: new THREE.Vector3(0.9, 0.5, 0.3),
+    color4: new THREE.Vector3(0.4, 0.2, 0.05),
+    glowColor:    new THREE.Color(0.9, 0.7, 0.25),
+    sparkColor:   new THREE.Color(1.0, 0.85, 0.35),
+    ringColor:    new THREE.Vector3(1.0, 0.8, 0.35),
+    nebulaColor1: new THREE.Color(0.4, 0.25, 0.05),
+    nebulaColor2: new THREE.Color(0.3, 0.15, 0.05),
+    starTint:     new THREE.Color(1.0, 0.92, 0.7),
+    galaxyCore:   new THREE.Color(0.45, 0.3, 0.1),
+    galaxyArm1:   new THREE.Color(0.35, 0.2, 0.05),
+    galaxyArm2:   new THREE.Color(0.25, 0.12, 0.05),
+    nebulaVivid1: new THREE.Color(1.0, 0.8, 0.1),
+    nebulaVivid2: new THREE.Color(0.95, 0.6, 0.15),
+    nebulaVivid3: new THREE.Color(1.0, 0.9, 0.5),
+    nebulaVivid4: new THREE.Color(0.18, 0.1, 0.02),
+    bgColor: 0x060606,
+    textShadow: 'rgba(216, 166, 38, 0.3)',
+  },
+  synthwave: {
+    color0: new THREE.Vector3(1.0, 0.95, 1.0),
+    color1: new THREE.Vector3(1.0, 0.2, 0.6),
+    color2: new THREE.Vector3(0.85, 0.1, 0.55),
+    color3: new THREE.Vector3(0.0, 0.9, 0.95),
+    color4: new THREE.Vector3(0.05, 0.05, 0.2),
+    glowColor:    new THREE.Color(0.9, 0.15, 0.5),
+    sparkColor:   new THREE.Color(1.0, 0.3, 0.7),
+    ringColor:    new THREE.Vector3(0.0, 0.95, 1.0),
+    nebulaColor1: new THREE.Color(0.4, 0.02, 0.25),
+    nebulaColor2: new THREE.Color(0.02, 0.2, 0.35),
+    starTint:     new THREE.Color(0.9, 0.7, 1.0),
+    galaxyCore:   new THREE.Color(0.4, 0.05, 0.3),
+    galaxyArm1:   new THREE.Color(0.02, 0.2, 0.35),
+    galaxyArm2:   new THREE.Color(0.3, 0.02, 0.2),
+    nebulaVivid1: new THREE.Color(1.0, 0.1, 0.5),
+    nebulaVivid2: new THREE.Color(0.0, 0.9, 1.0),
+    nebulaVivid3: new THREE.Color(1.0, 0.95, 0.1),
+    nebulaVivid4: new THREE.Color(0.05, 0.03, 0.12),
+    bgColor: 0x060606,
+    textShadow: 'rgba(217, 38, 128, 0.3)',
+  },
+};
+
+const paletteOrder = ['deepGreen', 'warmSunset', 'aurora', 'volcanic', 'reef', 'royale', 'gold', 'synthwave'];
+const paletteNames = {
+  deepGreen: 'Deep Green', warmSunset: 'Warm Sunset', aurora: 'Aurora Borealis',
+  volcanic: 'Volcanic Core', reef: 'Bioluminescent Reef', royale: 'Nebula Royale',
+  gold: 'Celestial Gold', synthwave: 'Neon Synthwave',
+};
+
+let currentPaletteIdx = 0;
+let sceneState = null;
+
+function buildScene(paletteName) {
+  const palette = palettes[paletteName];
+  const container = document.getElementById('banner-container');
+
+  // Remove old canvas if exists
+  const oldCanvas = container.querySelector('canvas');
+  if (oldCanvas) oldCanvas.remove();
+
+  // Renderer
+  const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+  renderer.setSize(W, H);
+  renderer.setPixelRatio(1);
+  renderer.setClearColor(palette.bgColor);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.0;
+  container.prepend(renderer.domElement);
+
+  // Scene + Camera
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, W / H, 0.1, 100);
+  camera.position.set(0, 0.15, 4.8);
+
+  // Post-processing
+  const composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, camera));
+  const bloomPass = new UnrealBloomPass(new THREE.Vector2(W, H), 0.55, 0.4, 0.75);
+  composer.addPass(bloomPass);
+
+  // Chromatic aberration
+  const chromaticShader = {
+    uniforms: {
+      tDiffuse: { value: null },
+      uIntensity: { value: 0.003 },
+    },
+    vertexShader: `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform sampler2D tDiffuse;
+      uniform float uIntensity;
+      varying vec2 vUv;
+      void main() {
+        vec2 center = vec2(0.5);
+        vec2 dir = vUv - center;
+        float dist = length(dir);
+        float offset = dist * uIntensity;
+        vec2 shift = normalize(dir + 0.0001) * offset;
+        float r = texture2D(tDiffuse, vUv + shift).r;
+        float g = texture2D(tDiffuse, vUv).g;
+        float b = texture2D(tDiffuse, vUv - shift).b;
+        float a = texture2D(tDiffuse, vUv).a;
+        gl_FragColor = vec4(r, g, b, a);
+      }
+    `,
+  };
+  composer.addPass(new ShaderPass(chromaticShader));
+  composer.addPass(new OutputPass());
+
+  // Scene group — shifted right for banner composition
+  const atomGroup = new THREE.Group();
+  atomGroup.position.x = 0.6;
+  scene.add(atomGroup);
+
+  // Track all uniforms with uTime for batch update
+  const timeUniforms = [];
+
+  // ─── 1. Energy Sphere ──────────────────────────────────────────────
+  const energyMat = new THREE.ShaderMaterial({
+    uniforms: {
+      uTime: { value: 0 },
+      uColor0: { value: palette.color0.clone() },
+      uColor1: { value: palette.color1.clone() },
+      uColor2: { value: palette.color2.clone() },
+      uColor3: { value: palette.color3.clone() },
+      uColor4: { value: palette.color4.clone() },
+      uScrollFade: { value: 1.0 },
+    },
+    vertexShader: `
+      ${noiseGLSL}
+      uniform float uTime;
+      varying vec3 vNormal;
+      varying vec3 vPosition;
+      varying vec3 vWorldPos;
+      varying float vDisplacement;
+      void main() {
+        vec3 pos = position;
+        float slow = uTime * 0.35;
+        float n = snoise(pos * 1.4 + slow) * 0.15;
+        n += snoise(pos * 2.8 + uTime * 0.5) * 0.05;
+        float displacement = n;
+        vDisplacement = displacement;
+        vec3 displaced = pos + normal * displacement;
+        vPosition = (modelMatrix * vec4(displaced, 1.0)).xyz;
+        vWorldPos = displaced;
+        vNormal = normalize(normalMatrix * normal);
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(displaced, 1.0);
+      }
+    `,
+    fragmentShader: `
+      ${noiseGLSL}
+      uniform float uTime;
+      uniform vec3 uColor0;
+      uniform vec3 uColor1;
+      uniform vec3 uColor2;
+      uniform vec3 uColor3;
+      uniform vec3 uColor4;
+      uniform float uScrollFade;
+      varying vec3 vNormal;
+      varying vec3 vPosition;
+      varying vec3 vWorldPos;
+      varying float vDisplacement;
+      void main() {
+        vec3 viewDir = normalize(cameraPosition - vPosition);
+        float fresnel = pow(1.0 - abs(dot(viewDir, normalize(vNormal))), 2.5);
+        float n1 = snoise(vWorldPos * 1.8 + uTime * 0.3) * 0.5 + 0.5;
+        float n2 = snoise(vWorldPos * 3.5 + uTime * 0.5) * 0.3;
+        float colorParam = clamp(n1 + n2 * fresnel, 0.0, 1.0);
+        vec3 color;
+        if (colorParam < 0.25) {
+          color = mix(uColor0, uColor1, colorParam / 0.25);
+        } else if (colorParam < 0.5) {
+          color = mix(uColor1, uColor2, (colorParam - 0.25) / 0.25);
+        } else if (colorParam < 0.75) {
+          color = mix(uColor2, uColor3, (colorParam - 0.5) / 0.25);
+        } else {
+          color = mix(uColor3, uColor4, (colorParam - 0.75) / 0.25);
+        }
+        color = mix(color, uColor0, fresnel * 0.4);
+        float pulse = 0.85 + 0.15 * sin(uTime * 0.8);
+        float intensity = (1.2 + fresnel * 1.5) * pulse;
+        gl_FragColor = vec4(color * intensity, 0.9 + fresnel * 0.1);
+      }
+    `,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    toneMapped: false,
+  });
+  timeUniforms.push(energyMat.uniforms.uTime);
+
+  const energySphere = new THREE.Mesh(new THREE.SphereGeometry(0.35, 48, 48), energyMat);
+  atomGroup.add(energySphere);
+
+  // Outer glow halo
+  const outerGlow = new THREE.Mesh(
+    new THREE.SphereGeometry(0.5, 32, 32),
+    new THREE.MeshBasicMaterial({
+      color: palette.glowColor.clone(),
+      transparent: true,
+      opacity: 0.04,
+      blending: THREE.AdditiveBlending,
+      side: THREE.BackSide,
+      depthWrite: false,
+    })
+  );
+  atomGroup.add(outerGlow);
+
+  // ─── 2. Spark Particles ────────────────────────────────────────────
+  const SPARK_COUNT = 40;
+  const sparkPositions = new Float32Array(SPARK_COUNT * 3);
+  const sparkColors = new Float32Array(SPARK_COUNT * 3);
+  const sparkSizes = new Float32Array(SPARK_COUNT);
+  const sparkOpacities = new Float32Array(SPARK_COUNT);
+  const sparkVelocities = [];
+  const sparkLifetimes = new Float32Array(SPARK_COUNT);
+  const sparkMaxLifetimes = new Float32Array(SPARK_COUNT);
+
+  const sc = palette.sparkColor;
+  for (let i = 0; i < SPARK_COUNT; i++) {
+    sparkMaxLifetimes[i] = 0.8 + Math.random() * 1.7;
+    sparkLifetimes[i] = Math.random() * sparkMaxLifetimes[i];
+    sparkSizes[i] = 0.012 + Math.random() * 0.016;
+    sparkOpacities[i] = 1.0;
+
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    const speed = 0.2 + Math.random() * 0.6;
+    sparkVelocities.push(new THREE.Vector3(
+      Math.sin(phi) * Math.cos(theta) * speed,
+      Math.sin(phi) * Math.sin(theta) * speed,
+      Math.cos(phi) * speed
+    ));
+
+    const brightness = 0.8 + Math.random() * 1.0;
+    sparkColors[i * 3]     = sc.r * brightness;
+    sparkColors[i * 3 + 1] = sc.g * brightness;
+    sparkColors[i * 3 + 2] = sc.b * brightness;
+  }
+
+  const sparkGeo = new THREE.BufferGeometry();
+  sparkGeo.setAttribute('position', new THREE.BufferAttribute(sparkPositions, 3));
+  sparkGeo.setAttribute('color', new THREE.BufferAttribute(sparkColors, 3));
+  sparkGeo.setAttribute('aSize', new THREE.BufferAttribute(sparkSizes, 1));
+  sparkGeo.setAttribute('aOpacity', new THREE.BufferAttribute(sparkOpacities, 1));
+
+  const sparkMat = new THREE.ShaderMaterial({
+    uniforms: { uScrollFade: { value: 1.0 } },
+    vertexShader: `
+      attribute float aSize;
+      attribute float aOpacity;
+      varying vec3 vColor;
+      varying float vOpacity;
+      void main() {
+        vColor = color;
+        vOpacity = aOpacity;
+        vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+        gl_PointSize = aSize * (300.0 / -mvPos.z);
+        gl_Position = projectionMatrix * mvPos;
+      }
+    `,
+    fragmentShader: `
+      varying vec3 vColor;
+      varying float vOpacity;
+      void main() {
+        float d = length(gl_PointCoord - vec2(0.5));
+        if (d > 0.5) discard;
+        float falloff = 1.0 - smoothstep(0.0, 0.5, d);
+        gl_FragColor = vec4(vColor * falloff, vOpacity * falloff);
+      }
+    `,
+    vertexColors: true,
+    transparent: true,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    toneMapped: false,
+  });
+
+  const sparkPoints = new THREE.Points(sparkGeo, sparkMat);
+  atomGroup.add(sparkPoints);
+
+  // ─── 3. Orbital Rings ──────────────────────────────────────────────
+  const ringDefs = [
+    { rx: 2.0, ry: 0.7,  rotZ: -20 * Math.PI / 180, baseOpacity: 0.6,  tube: 0.012, phase: 0.0 },
+    { rx: 2.0, ry: 0.85, rotZ:  15 * Math.PI / 180, baseOpacity: 0.35, tube: 0.010, phase: 2.1 },
+    { rx: 2.0, ry: 0.9,  rotZ:  50 * Math.PI / 180, baseOpacity: 0.2,  tube: 0.010, phase: 4.2 },
+  ];
+
+  const ringCurves = [];
+  const ringMaterials = [];
+
+  for (const def of ringDefs) {
+    const ellipse = new THREE.EllipseCurve(0, 0, def.rx, def.ry, 0, Math.PI * 2, false, 0);
+    const pts2d = ellipse.getPoints(128);
+    const pts3d = pts2d.map(p => new THREE.Vector3(p.x, 0, p.y));
+    const curve = new THREE.CatmullRomCurve3(pts3d, true);
+    ringCurves.push(curve);
+
+    const tubeGeo = new THREE.TubeGeometry(curve, 128, def.tube, 8, true);
+
+    const ringMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uBaseOpacity: { value: def.baseOpacity },
+        uRingColor: { value: palette.ringColor.clone() },
+        uPhase: { value: def.phase },
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float uTime;
+        uniform float uBaseOpacity;
+        uniform vec3 uRingColor;
+        uniform float uPhase;
+        varying vec2 vUv;
+        void main() {
+          float t = vUv.x;
+          float pulse1 = pow(max(sin((t - uTime * 0.3 + uPhase) * 6.2831853 * 2.0), 0.0), 6.0);
+          float pulse2 = pow(max(sin((t - uTime * 0.2 + uPhase * 0.7) * 6.2831853 * 3.0), 0.0), 6.0);
+          float pulse3 = pow(max(sin((t + uTime * 0.15 + uPhase * 1.3) * 6.2831853 * 1.0), 0.0), 12.0);
+          float brightness = uBaseOpacity + 0.25 * pulse1 + 0.15 * pulse2 + 0.1 * pulse3;
+          vec3 color = mix(vec3(1.0), uRingColor, 0.2 + 0.15 * (pulse1 + pulse2));
+          gl_FragColor = vec4(color * brightness, brightness);
+        }
+      `,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      toneMapped: false,
+    });
+    timeUniforms.push(ringMat.uniforms.uTime);
+    ringMaterials.push(ringMat);
+
+    const mesh = new THREE.Mesh(tubeGeo, ringMat);
+    mesh.rotation.z = def.rotZ;
+    atomGroup.add(mesh);
+  }
+
+  // ─── 4. Orbit Electrons ────────────────────────────────────────────
+  const PARTICLES_PER_RING = 4;
+  const orbitParticleGroups = [];
+
+  for (let ri = 0; ri < ringDefs.length; ri++) {
+    const count = PARTICLES_PER_RING;
+    const posArr = new Float32Array(count * 3);
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
+
+    const mat = new THREE.PointsMaterial({
+      color: 0xffffff,
+      size: 0.04,
+      transparent: true,
+      opacity: 0.9,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      toneMapped: false,
+      sizeAttenuation: true,
+    });
+    const points = new THREE.Points(geo, mat);
+    points.rotation.z = ringDefs[ri].rotZ;
+    atomGroup.add(points);
+
+    const phases = [];
+    for (let i = 0; i < count; i++) phases.push(i / count);
+    const speed = 0.15 + ri * 0.02;
+
+    orbitParticleGroups.push({ points, curve: ringCurves[ri], phases, speed, posArr });
+  }
+
+  // ─── 5. Star Field (Reduced for banner) ────────────────────────────
+
+  // Layer 1: Background Stars — 2,000
+  function createBackgroundStars() {
+    const count = 2000;
+    const positions = new Float32Array(count * 3);
+    const sizes = new Float32Array(count);
+    const phases = new Float32Array(count);
+    const colors = new Float32Array(count * 3);
+
+    for (let i = 0; i < count; i++) {
+      positions[i * 3]     = (Math.random() - 0.5) * 25;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 25;
+      positions[i * 3 + 2] = -12 + Math.random() * 8;
+
+      const brightness = powerLawBrightness(3.5);
+      const brightnessScale = 0.4 + brightness * 0.6;
+      sizes[i] = (0.03 + Math.random() * 0.08) * brightnessScale;
+      phases[i] = Math.random() * 43758.0;
+
+      const temp = randomStarTemperature();
+      const bb = blackbodyColor(temp);
+      const tinted = tintStarColor(bb, palette.starTint, 0.2);
+      colors[i * 3]     = tinted[0] * brightnessScale;
+      colors[i * 3 + 1] = tinted[1] * brightnessScale;
+      colors[i * 3 + 2] = tinted[2] * brightnessScale;
+    }
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geo.setAttribute('aSize', new THREE.BufferAttribute(sizes, 1));
+    geo.setAttribute('aPhase', new THREE.BufferAttribute(phases, 1));
+    geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    const mat = new THREE.ShaderMaterial({
+      uniforms: { uTime: { value: 0 } },
+      vertexShader: `
+        attribute float aSize;
+        attribute float aPhase;
+        varying float vPhase;
+        varying vec3 vColor;
+        void main() {
+          vPhase = aPhase;
+          vColor = color;
+          vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+          gl_PointSize = max(aSize * (600.0 / -mvPos.z), 1.0);
+          gl_Position = projectionMatrix * mvPos;
+        }
+      `,
+      fragmentShader: `
+        ${hashGLSL}
+        uniform float uTime;
+        varying float vPhase;
+        varying vec3 vColor;
+        void main() {
+          float d = length(gl_PointCoord - vec2(0.5));
+          if (d > 0.5) discard;
+          float falloff = 1.0 - smoothstep(0.0, 0.5, d);
+          float breath = 0.75 + 0.25 * sin(uTime * 0.3 + vPhase * 6.2831853);
+          float alpha = breath * falloff * 1.1;
+          gl_FragColor = vec4(vColor * breath * 1.5, alpha);
+        }
+      `,
+      vertexColors: true,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      toneMapped: false,
+    });
+    timeUniforms.push(mat.uniforms.uTime);
+    const points = new THREE.Points(geo, mat);
+    scene.add(points);
+    return { points, mat };
+  }
+
+  // Layer 2: Mid-field Stars — 800
+  function createMidFieldStars() {
+    const count = 800;
+    const positions = new Float32Array(count * 3);
+    const sizes = new Float32Array(count);
+    const phases = new Float32Array(count);
+    const colors = new Float32Array(count * 3);
+    const brightnesses = new Float32Array(count);
+
+    for (let i = 0; i < count; i++) {
+      positions[i * 3]     = (Math.random() - 0.5) * 25;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 25;
+      positions[i * 3 + 2] = -12 + Math.random() * 10;
+
+      const brightness = powerLawBrightness(2.5);
+      brightnesses[i] = 0.3 + brightness * 0.7;
+      sizes[i] = (0.04 + Math.random() * 0.10) * (0.5 + brightness * 0.5);
+      phases[i] = Math.random() * Math.PI * 2;
+
+      const temp = randomStarTemperature();
+      const bb = blackbodyColor(temp);
+      const tinted = tintStarColor(bb, palette.starTint, 0.15);
+      colors[i * 3]     = tinted[0];
+      colors[i * 3 + 1] = tinted[1];
+      colors[i * 3 + 2] = tinted[2];
+    }
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geo.setAttribute('aSize', new THREE.BufferAttribute(sizes, 1));
+    geo.setAttribute('aPhase', new THREE.BufferAttribute(phases, 1));
+    geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    geo.setAttribute('aBrightness', new THREE.BufferAttribute(brightnesses, 1));
+
+    const mat = new THREE.ShaderMaterial({
+      uniforms: { uTime: { value: 0 } },
+      vertexShader: `
+        attribute float aSize;
+        attribute float aPhase;
+        attribute float aBrightness;
+        varying float vPhase;
+        varying vec3 vColor;
+        varying float vBrightness;
+        void main() {
+          vPhase = aPhase;
+          vColor = color;
+          vBrightness = aBrightness;
+          vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+          gl_PointSize = max(aSize * (500.0 / -mvPos.z), 1.2);
+          gl_Position = projectionMatrix * mvPos;
+        }
+      `,
+      fragmentShader: `
+        uniform float uTime;
+        varying float vPhase;
+        varying vec3 vColor;
+        varying float vBrightness;
+        void main() {
+          float d = length(gl_PointCoord - vec2(0.5));
+          if (d > 0.5) discard;
+          float falloff = 1.0 - smoothstep(0.0, 0.5, d);
+          float t1 = sin(uTime * 0.3 + vPhase * 6.2831853);
+          float t2 = sin(uTime * 0.5 + vPhase * 4.1234567);
+          float twinkle = 0.7 + 0.3 * ((t1 + t2) / 2.0 * 0.5 + 0.5);
+          twinkle = mix(0.8, twinkle, 0.3 + vBrightness * 0.7);
+          float chromaShift = 0.01 * vBrightness * sin(uTime * 0.3 + vPhase);
+          vec3 color = vColor;
+          color.r += chromaShift;
+          color.b -= chromaShift;
+          float alpha = vBrightness * twinkle * falloff * 1.2;
+          gl_FragColor = vec4(color * twinkle * 1.2, alpha);
+        }
+      `,
+      vertexColors: true,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      toneMapped: false,
+    });
+    timeUniforms.push(mat.uniforms.uTime);
+    const points = new THREE.Points(geo, mat);
+    scene.add(points);
+    return { points, mat };
+  }
+
+  // Layer 3: Feature Stars — 80
+  function createFeatureStars() {
+    const count = 80;
+    const positions = new Float32Array(count * 3);
+    const sizes = new Float32Array(count);
+    const phases = new Float32Array(count);
+    const colors = new Float32Array(count * 3);
+    const brightnesses = new Float32Array(count);
+
+    for (let i = 0; i < count; i++) {
+      positions[i * 3]     = (Math.random() - 0.5) * 25;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 25;
+      positions[i * 3 + 2] = -8 + Math.random() * 8;
+
+      const brightness = powerLawBrightness(1.5);
+      brightnesses[i] = 0.4 + brightness * 0.6;
+      sizes[i] = (0.06 + Math.random() * 0.14) * (0.5 + brightness * 0.5);
+      phases[i] = Math.random() * Math.PI * 2;
+
+      const temp = randomStarTemperature();
+      const bb = blackbodyColor(temp);
+      const tinted = tintStarColor(bb, palette.starTint, 0.12);
+      colors[i * 3]     = tinted[0];
+      colors[i * 3 + 1] = tinted[1];
+      colors[i * 3 + 2] = tinted[2];
+    }
+
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geo.setAttribute('aSize', new THREE.BufferAttribute(sizes, 1));
+    geo.setAttribute('aPhase', new THREE.BufferAttribute(phases, 1));
+    geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    geo.setAttribute('aBrightness', new THREE.BufferAttribute(brightnesses, 1));
+
+    const mat = new THREE.ShaderMaterial({
+      uniforms: { uTime: { value: 0 } },
+      vertexShader: `
+        attribute float aSize;
+        attribute float aPhase;
+        attribute float aBrightness;
+        varying float vPhase;
+        varying vec3 vColor;
+        varying float vBrightness;
+        void main() {
+          vPhase = aPhase;
+          vColor = color;
+          vBrightness = aBrightness;
+          vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+          gl_PointSize = max(aSize * (450.0 / -mvPos.z), 2.0);
+          gl_Position = projectionMatrix * mvPos;
+        }
+      `,
+      fragmentShader: `
+        ${hashGLSL}
+        uniform float uTime;
+        varying float vPhase;
+        varying vec3 vColor;
+        varying float vBrightness;
+        void main() {
+          vec2 uv = gl_PointCoord - vec2(0.5);
+          float d = length(uv);
+          if (d > 0.5) discard;
+          float core = exp(-d * d * 80.0);
+          float halo = 0.02 / (d * d + 0.01);
+          float shape = core + halo * vBrightness;
+          float t1 = sin(uTime * 0.3 + vPhase * 6.2831853);
+          float t2 = sin(uTime * 0.5 + vPhase * 4.1234567);
+          float twinkle = 0.7 + 0.3 * ((t1 + t2) / 2.0 * 0.5 + 0.5);
+          float chromaShift = 0.02 * vBrightness * sin(uTime * 0.3 + vPhase);
+          vec3 color = vColor;
+          color.r += chromaShift;
+          color.b -= chromaShift;
+          color = mix(color, vec3(1.0), core * vBrightness * 0.6);
+          float alpha = vBrightness * twinkle * shape;
+          gl_FragColor = vec4(color * twinkle, alpha);
+        }
+      `,
+      vertexColors: true,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      toneMapped: false,
+    });
+    timeUniforms.push(mat.uniforms.uTime);
+    const points = new THREE.Points(geo, mat);
+    scene.add(points);
+    return { points, mat };
+  }
+
+  createBackgroundStars();
+  createMidFieldStars();
+  createFeatureStars();
+
+  // ─── 6. Galaxy Spiral Background ───────────────────────────────────
+  const galaxyMat = new THREE.ShaderMaterial({
+    uniforms: {
+      uTime: { value: 0 },
+      uGalaxyCore: { value: palette.galaxyCore.clone() },
+      uGalaxyArm1: { value: palette.galaxyArm1.clone() },
+      uGalaxyArm2: { value: palette.galaxyArm2.clone() },
+      uGalaxyCenter: { value: new THREE.Vector2(-0.25, 0.05) },
+    },
+    vertexShader: `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      ${noiseGLSL}
+      uniform float uTime;
+      uniform vec3 uGalaxyCore;
+      uniform vec3 uGalaxyArm1;
+      uniform vec3 uGalaxyArm2;
+      uniform vec2 uGalaxyCenter;
+      varying vec2 vUv;
+      void main() {
+        vec2 center = uGalaxyCenter;
+        vec2 p = vUv - 0.5 - center;
+        p *= 1.5;
+        float r = length(p);
+        float theta = atan(p.y, p.x);
+        theta += uTime * 0.005;
+        float warp1 = snoise(vec3(p * 1.5, uTime * 0.004)) * 0.5;
+        float warp2 = snoise(vec3(p * 3.0 + 7.0, uTime * 0.006)) * 0.25;
+        float warpedTheta = theta + warp1 + warp2;
+        float arm1 = cos(warpedTheta * 2.0 - log(r + 0.001) * 2.0);
+        float arm2 = cos(warpedTheta * 2.0 - log(r + 0.001) * 2.0 + 2.4) * 0.7;
+        float arm3 = cos(warpedTheta * 2.0 - log(r + 0.001) * 2.0 + 4.2) * 0.4;
+        float arms = max(max(arm1, arm2), arm3);
+        arms = smoothstep(-0.3, 0.8, arms);
+        arms *= smoothstep(0.04, 0.18, r);
+        float fbm = snoise(vec3(p * 4.0, uTime * 0.003)) * 0.5
+                   + snoise(vec3(p * 8.0 + 3.0, uTime * 0.005)) * 0.25
+                   + snoise(vec3(p * 16.0 + 7.0, uTime * 0.007)) * 0.125;
+        float wisps = smoothstep(-0.2, 0.6, fbm) * 0.4;
+        float breakup = snoise(vec3(p * 5.0 + 15.0, uTime * 0.004));
+        arms *= 0.6 + 0.4 * breakup;
+        float coreWarp = snoise(vec3(p * 2.0, uTime * 0.01)) * 0.08;
+        vec2 coreP = p + coreWarp;
+        coreP.x *= 1.3;
+        float core = exp(-dot(coreP, coreP) * 5.0) * 0.8;
+        float falloff = smoothstep(0.9, 0.05, r);
+        float diffuse = exp(-r * r * 1.5) * 0.08;
+        float brightness = (arms * 0.14 + wisps * 0.06 + core * 0.12 + diffuse) * falloff;
+        vec3 color = mix(uGalaxyCore * 1.3, uGalaxyArm1, smoothstep(0.0, 0.25, r));
+        color = mix(color, uGalaxyArm2, smoothstep(0.25, 0.6, r));
+        gl_FragColor = vec4(color * brightness, brightness);
+      }
+    `,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    side: THREE.DoubleSide,
+    toneMapped: false,
+  });
+  timeUniforms.push(galaxyMat.uniforms.uTime);
+
+  const galaxyQuad = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), galaxyMat);
+  galaxyQuad.position.set(0, 0, -15);
+  scene.add(galaxyQuad);
+
+  // ─── 7. Nebula Cloud ───────────────────────────────────────────────
+  const nebulaMat = new THREE.ShaderMaterial({
+    uniforms: {
+      uTime:   { value: 0 },
+      uVivid1: { value: new THREE.Vector3(palette.nebulaVivid1.r, palette.nebulaVivid1.g, palette.nebulaVivid1.b) },
+      uVivid2: { value: new THREE.Vector3(palette.nebulaVivid2.r, palette.nebulaVivid2.g, palette.nebulaVivid2.b) },
+      uVivid3: { value: new THREE.Vector3(palette.nebulaVivid3.r, palette.nebulaVivid3.g, palette.nebulaVivid3.b) },
+      uVivid4: { value: new THREE.Vector3(palette.nebulaVivid4.r, palette.nebulaVivid4.g, palette.nebulaVivid4.b) },
+    },
+    vertexShader: `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform float uTime;
+      uniform vec3 uVivid1;
+      uniform vec3 uVivid2;
+      uniform vec3 uVivid3;
+      uniform vec3 uVivid4;
+      varying vec2 vUv;
+      ${noiseGLSL}
+      float fbm(vec3 p) {
+        float val = 0.0;
+        float amp = 0.5;
+        float freq = 1.0;
+        mat2 rot = mat2(0.8, 0.6, -0.6, 0.8);
+        for (int i = 0; i < 5; i++) {
+          val += amp * snoise(p * freq);
+          p.xy = rot * p.xy;
+          p.yz = rot * p.yz;
+          freq *= 2.1;
+          amp *= 0.5;
+        }
+        return val;
+      }
+      void main() {
+        vec2 uv = vUv - 0.5;
+        float slowTime = uTime * 0.012;
+        float warp1 = snoise(vec3(uv * 1.5, slowTime * 0.7)) * 0.35;
+        float warp2 = snoise(vec3(uv * 1.5 + 5.0, slowTime * 0.6)) * 0.35;
+        vec2 warped = uv + vec2(warp1, warp2);
+        float density = fbm(vec3(warped * 2.5, slowTime));
+        density = smoothstep(-0.1, 0.8, density);
+        float region1 = smoothstep(-0.2, 0.4, snoise(vec3(uv * 1.2 + 10.0, slowTime * 0.5)));
+        float region2 = smoothstep(-0.2, 0.4, snoise(vec3(uv * 1.3 + 20.0, slowTime * 0.4)));
+        float region3 = 1.0 - region1 * 0.5 - region2 * 0.5;
+        float totalW = region1 + region2 + region3 + 0.001;
+        region1 /= totalW;
+        region2 /= totalW;
+        region3 /= totalW;
+        vec3 nebulaCol = uVivid1 * region1 + uVivid2 * region2 + uVivid3 * region3;
+        float coreBoost = smoothstep(0.6, 0.9, density);
+        nebulaCol = mix(nebulaCol, nebulaCol + vec3(0.15, 0.12, 0.08), coreBoost * 0.5);
+        float dust = fbm(vec3(warped * 4.0 + 30.0, slowTime * 0.8));
+        dust = smoothstep(0.05, 0.55, dust);
+        nebulaCol = mix(nebulaCol, uVivid4, dust * 0.45);
+        density *= mix(1.0, 0.3, dust);
+        float vignette = 1.0 - smoothstep(0.25, 0.52, length(uv));
+        float alpha = density * vignette * 0.12;
+        alpha = clamp(alpha, 0.0, 1.0);
+        gl_FragColor = vec4(nebulaCol * alpha, alpha);
+      }
+    `,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    side: THREE.DoubleSide,
+    toneMapped: false,
+  });
+  timeUniforms.push(nebulaMat.uniforms.uTime);
+
+  const nebulaQuad = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), nebulaMat);
+  nebulaQuad.position.set(0, 0, -14);
+  scene.add(nebulaQuad);
+
+  // ─── Render Pipeline (Freeze-Frame) ────────────────────────────────
+  function updateSparks(dt) {
+    for (let i = 0; i < SPARK_COUNT; i++) {
+      sparkLifetimes[i] += dt;
+      if (sparkLifetimes[i] >= sparkMaxLifetimes[i]) {
+        // Reset
+        sparkLifetimes[i] = 0;
+        sparkMaxLifetimes[i] = 0.8 + Math.random() * 1.7;
+        sparkSizes[i] = 0.012 + Math.random() * 0.016;
+
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        const speed = 0.2 + Math.random() * 0.6;
+        sparkVelocities[i].set(
+          Math.sin(phi) * Math.cos(theta) * speed,
+          Math.sin(phi) * Math.sin(theta) * speed,
+          Math.cos(phi) * speed
+        );
+        sparkPositions[i * 3] = 0;
+        sparkPositions[i * 3 + 1] = 0;
+        sparkPositions[i * 3 + 2] = 0;
+      }
+
+      const life = sparkLifetimes[i] / sparkMaxLifetimes[i];
+      sparkPositions[i * 3]     += sparkVelocities[i].x * dt;
+      sparkPositions[i * 3 + 1] += sparkVelocities[i].y * dt;
+      sparkPositions[i * 3 + 2] += sparkVelocities[i].z * dt;
+
+      // Fade out in second half
+      sparkOpacities[i] = life < 0.5 ? 1.0 : 1.0 - (life - 0.5) * 2.0;
+    }
+    sparkGeo.attributes.position.needsUpdate = true;
+    sparkGeo.attributes.aOpacity.needsUpdate = true;
+  }
+
+  function updateElectrons(time) {
+    for (const group of orbitParticleGroups) {
+      for (let i = 0; i < group.phases.length; i++) {
+        const t = (group.phases[i] + time * group.speed) % 1.0;
+        const pt = group.curve.getPointAt(t);
+        group.posArr[i * 3]     = pt.x;
+        group.posArr[i * 3 + 1] = pt.y;
+        group.posArr[i * 3 + 2] = pt.z;
+      }
+      group.points.geometry.attributes.position.needsUpdate = true;
+    }
+  }
+
+  function renderBanner(targetTime = 2.8, frames = 60) {
+    const dt = targetTime / frames;
+    let time = 0;
+    for (let f = 0; f < frames; f++) {
+      time += dt;
+
+      // Update all uTime uniforms
+      for (const u of timeUniforms) u.value = time;
+
+      // Rotate atom group slowly
+      atomGroup.rotation.y = time * 0.08;
+
+      // Update sparks
+      updateSparks(dt);
+
+      // Update electrons along curves
+      updateElectrons(time);
+
+      // Render
+      composer.render();
+    }
+  }
+
+  return {
+    renderer, scene, camera, composer, atomGroup,
+    timeUniforms, sparkGeo, sparkPositions, sparkOpacities, sparkVelocities,
+    sparkLifetimes, sparkMaxLifetimes, sparkSizes,
+    orbitParticleGroups, renderBanner, palette, SPARK_COUNT,
+    updateSparks, updateElectrons,
+  };
+}
+
+// ─── Text overlay theming ─────────────────────────────────────────────
+function updateTextOverlayTheme(palette) {
+  const line1 = document.querySelector('.text-line1');
+  const line2 = document.querySelector('.text-line2');
+  if (line1) line1.style.textShadow = `0 0 30px ${palette.textShadow}`;
+  if (line2) line2.style.textShadow = `0 0 30px ${palette.textShadow}`;
+
+  const accentLine = document.querySelector('.text-accent-line');
+  if (accentLine) {
+    const gc = palette.glowColor;
+    accentLine.style.background = `rgba(${Math.round(gc.r*255)},${Math.round(gc.g*255)},${Math.round(gc.b*255)},0.4)`;
+  }
+
+  const badge = document.querySelector('.text-badge');
+  if (badge) {
+    const gc = palette.glowColor;
+    badge.style.color = `rgba(${Math.round(gc.r*255)},${Math.round(gc.g*255)},${Math.round(gc.b*255)},0.5)`;
+  }
+}
+
+// ─── Initialize ───────────────────────────────────────────────────────
+function init() {
+  const paletteName = paletteOrder[currentPaletteIdx];
+  sceneState = buildScene(paletteName);
+  updateTextOverlayTheme(sceneState.palette);
+  document.getElementById('palette-label').textContent = paletteNames[paletteName];
+  sceneState.renderBanner(2.8, 60);
+}
+
+init();
+
+// ─── Export PNG (composite with text) ─────────────────────────────────
+document.getElementById('export-btn').addEventListener('click', () => {
+  // Re-render fresh for clean export
+  sceneState.renderBanner(2.8, 60);
+
+  const exportCanvas = document.getElementById('export-canvas');
+  const ctx = exportCanvas.getContext('2d');
+
+  // Draw the WebGL canvas
+  ctx.drawImage(sceneState.renderer.domElement, 0, 0, W, H);
+
+  // Composite text
+  const pal = sceneState.palette;
+  const gc = pal.glowColor;
+  const tagX = W - 80;
+  const tagY = H * 0.42;
+
+  ctx.save();
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+
+  ctx.font = '300 28px "Outfit", sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  ctx.shadowColor = pal.textShadow;
+  ctx.shadowBlur = 30;
+  ctx.fillText('Engineering software', tagX, tagY - 20);
+
+  ctx.font = '500 28px "Outfit", sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.9)';
+  ctx.fillText('that matters.', tagX, tagY + 20);
+
+  ctx.shadowBlur = 0;
+
+  // Accent line
+  ctx.strokeStyle = `rgba(${Math.round(gc.r*255)},${Math.round(gc.g*255)},${Math.round(gc.b*255)},0.4)`;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(tagX - 220, tagY + 50);
+  ctx.lineTo(tagX, tagY + 50);
+  ctx.stroke();
+
+  // Badge
+  ctx.font = '500 11px "JetBrains Mono", monospace';
+  ctx.fillStyle = `rgba(${Math.round(gc.r*255)},${Math.round(gc.g*255)},${Math.round(gc.b*255)},0.5)`;
+  ctx.fillText('UNIFY LABS', tagX, tagY + 68);
+
+  ctx.restore();
+
+  // Download
+  const link = document.createElement('a');
+  link.download = 'unify-labs-linkedin-banner.png';
+  link.href = exportCanvas.toDataURL('image/png');
+  link.click();
+});
+
+// ─── Toggle photo guide ───────────────────────────────────────────────
+document.getElementById('toggle-guide').addEventListener('click', () => {
+  document.getElementById('photo-guide').classList.toggle('hidden');
+});
+
+// ─── Next palette ─────────────────────────────────────────────────────
+document.getElementById('palette-btn').addEventListener('click', () => {
+  currentPaletteIdx = (currentPaletteIdx + 1) % paletteOrder.length;
+  init();
+});
+
+// ─── Redraw (new random seed) ─────────────────────────────────────────
+document.getElementById('redraw-btn').addEventListener('click', () => {
+  init();
+});
+</script>
+</body>
+</html>
